@@ -12,7 +12,6 @@ const PERIODS = [
 
 const GAME_OPTIONS = [
   { value: 'aviator', label: 'Aviator' },
-  { value: 'ludo', label: 'Ludo' },
   { value: 'spinner', label: 'Spinner' },
 ];
 
@@ -25,7 +24,7 @@ const Dashboard = () => {
   const [customTo, setCustomTo] = useState('');
   const [exportOpen, setExportOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [selectedGames, setSelectedGames] = useState(['aviator', 'ludo', 'spinner']); // All selected by default
+  const [selectedGames, setSelectedGames] = useState(['aviator', 'spinner']); // All selected by default
   const exportRef = useRef(null);
 
   // Close dropdown on outside click
@@ -81,7 +80,7 @@ const Dashboard = () => {
         tr:nth-child(even){background:#f9fafb}
         tr.total-row{background:#dbeafe;font-weight:bold}
         @media print{body{margin:10px}}</style></head>
-        <body><h1>RushkroLudo - All Users</h1>
+        <body><h1>101Dream - All Users</h1>
         <p>Total: ${users.length} users | Exported: ${new Date().toLocaleDateString('en-IN')}</p>
         <p class="total">Total Available Balance: ₹${totalBalance.toLocaleString('en-IN')}</p>
         <table><thead><tr>${Object.keys(users[0]).map(h => `<th>${h}</th>`).join('')}</tr></thead>

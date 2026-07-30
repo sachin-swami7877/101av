@@ -49,26 +49,33 @@ api.interceptors.response.use(
   }
 );
 
+// This frontend belongs to the 101dream site — sent with every login call so the
+// backend keeps 101dream users in their own account space (separate from rushkroludo)
+export const SITE_TYPE = '101dream';
+
 // Auth API
 export const authAPI = {
-  sendOTP: (email) => api.post('/auth/send-otp', { email: String(email || '').trim() }),
+  sendOTP: (email) => api.post('/auth/send-otp', { email: String(email || '').trim(), type: SITE_TYPE }),
   sendOTPByPhone: (phone) => api.post('/auth/send-otp', {
     phone: String(phone || '').trim(),
     loginMode: 'mobile',
+    type: SITE_TYPE,
   }),
   verifyOTP: (email, otp) => api.post('/auth/verify-otp', {
     email: String(email || '').trim(),
     otp: String(otp || '').trim(),
+    type: SITE_TYPE,
   }),
   verifyOTPByPhone: (phone, otp) => api.post('/auth/verify-otp', {
     phone: String(phone || '').trim(),
     otp: String(otp || '').trim(),
     loginMode: 'mobile',
+    type: SITE_TYPE,
   }),
   setUsername: (name, referralCode) => api.put('/auth/set-username', { name, ...(referralCode ? { referralCode } : {}) }),
   updateProfile: (data) => api.put('/auth/profile', data),
   getMe: () => api.get('/auth/me'),
-  findEmail: (phone) => api.post('/auth/find-email', { phone: String(phone || '').trim() }),
+  findEmail: (phone) => api.post('/auth/find-email', { phone: String(phone || '').trim(), type: SITE_TYPE }),
   submitKyc: (formData) => api.post('/auth/kyc', formData),
   getKycStatus: () => api.get('/auth/kyc'),
 };
@@ -157,32 +164,6 @@ export const settingsAPI = {
   getLogo: () => api.get('/settings/logo'),
 };
 
-// Ludo API (user)
-export const ludoAPI = {
-  createMatch: (entryAmount) => api.post('/ludo/create', { entryAmount }),
-  submitRoomCode: (matchId, roomCode) => api.post('/ludo/submit-room-code', { matchId, roomCode }),
-  joinMatch: (matchId) => api.post('/ludo/join', { matchId }),
-  cancelMatch: (matchId) => api.post('/ludo/cancel', { matchId }),
-  requestCancel: (matchId, reasonCode, customReason) =>
-    api.post('/ludo/request-cancel', { matchId, reasonCode, customReason }),
-  acceptCancel: (matchId) => api.post('/ludo/accept-cancel', { matchId }),
-  submitWinDispute: (formData) =>
-    api.post('/ludo/submit-win-dispute', formData),
-  checkMatchWaiting: (id) => api.get(`/ludo/match/${id}/check`),
-  getMyMatches: (params) => api.get('/ludo/my-matches', { params }),
-  getMatchDetail: (id) => api.get(`/ludo/match/${id}`),
-  submitResult: (matchId, formData) =>
-    api.post('/ludo/submit-result', formData),
-  submitResultBase64: (matchId, data) =>
-    api.post('/ludo/submit-result-base64', data),
-  submitLoss: (formData) => api.post('/ludo/submit-loss', formData),
-  cancelAsLoss: (matchId) => api.post('/ludo/cancel-as-loss', { matchId }),
-  checkExpiry: (matchId) => api.post('/ludo/check-expiry', { matchId }),
-  getWaitingList: () => api.get('/ludo/waiting-list'),
-  getRunningBattles: () => api.get('/ludo/running-battles'),
-  getSettings: () => api.get('/ludo/settings'),
-};
-
 // Admin API
 export const adminAPI = {
   getDashboard: (params) => api.get('/admin/dashboard', { params }),
@@ -226,23 +207,11 @@ export const adminAPI = {
   uploadLogo: (formData) => api.post('/admin/settings/logo', formData),
   getBonusRecords: (params) => api.get('/admin/bonus-records', { params }),
   getUserTransactions: (id, params) => api.get(`/admin/users/${id}/transactions`, { params }),
-  // Ludo admin
-  getLudoMatches: (params) => api.get('/admin/ludo/matches', { params }),
-  getLudoMatchDetail: (id) => api.get(`/admin/ludo/matches/${id}`),
-  updateLudoMatchStatus: (id, data) => api.put(`/admin/ludo/matches/${id}/status`, data),
-  getLudoResultRequests: (params) => api.get('/admin/ludo/result-requests', { params }),
-  approveLudoResultRequest: (id, winnerId, note) => api.put(`/admin/ludo/result-requests/${id}/approve`, { winnerId, note }),
-  rejectLudoResultRequest: (id, note) => api.put(`/admin/ludo/result-requests/${id}/reject`, { note }),
-  resolveDispute: (id, body) =>
-    api.put(`/admin/ludo/result-requests/${id}/resolve-dispute`, body),
-  deleteLudoMatches: (ids) => api.post('/admin/ludo/matches/bulk-delete', { ids }),
   // Profit
-  getLudoProfit: (params) => api.get('/admin/profit/ludo', { params }),
   getAviatorProfit: (params) => api.get('/admin/profit/aviator', { params }),
   // Database cleanup
   getCleanupPreview: (params) => api.get('/admin/cleanup/preview', { params }),
   cleanupPhotos: (data) => api.post('/admin/cleanup/photos', data),
-  cleanupLudoMatches: (data) => api.post('/admin/cleanup/ludo-matches', data),
   // Export
   exportUsers: () => api.get('/admin/export/users'),
   getCreditLog: (params) => api.get('/admin/credit-log', { params }),

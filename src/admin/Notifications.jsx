@@ -6,7 +6,7 @@ import { useSocket } from '../context/SocketContext';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pendingSummary, setPendingSummary] = useState({ deposits: 0, withdrawals: 0, ludo: 0, kyc: 0 });
+  const [pendingSummary, setPendingSummary] = useState({ deposits: 0, withdrawals: 0, kyc: 0 });
   const { socket } = useSocket();
   const navigate = useNavigate();
 
@@ -16,7 +16,6 @@ const Notifications = () => {
       setPendingSummary({
         deposits: res.data.pendingDeposits || 0,
         withdrawals: res.data.pendingWithdrawals || 0,
-        ludo: res.data.pendingLudo || 0,
         kyc: res.data.pendingKyc || 0,
       });
     }).catch(() => {});

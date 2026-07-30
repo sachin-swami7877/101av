@@ -19,8 +19,6 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Spinner from './pages/Spinner';
 import SpinnerRecords from './pages/SpinnerRecords';
-import Ludo from './pages/Ludo';
-import LudoMatchDetail from './pages/LudoMatchDetail';
 import Support from './pages/Support';
 import Terms from './pages/Terms';
 import Bonus from './pages/Bonus';
@@ -45,7 +43,6 @@ import AdminNotifications from './admin/Notifications';
 import AdminSpinnerRecords from './admin/SpinnerRecords';
 import AdminSettings from './admin/Settings';
 import AdminBonusRecords from './admin/BonusRecords';
-import AdminLudo from './admin/AdminLudo';
 import AdminUserDetail from './admin/AdminUserDetail';
 import AdminUserTransactions from './admin/AdminUserTransactions';
 import AdminProfile from './admin/AdminProfile';
@@ -248,12 +245,6 @@ function AppRoutes() {
       <Route path="/spinner-records" element={
         <ProtectedRoute><SocketProvider><SpinnerRecords /></SocketProvider></ProtectedRoute>
       } />
-      <Route path="/ludo" element={
-        <ProtectedRoute><SocketProvider><Ludo /></SocketProvider></ProtectedRoute>
-      } />
-      <Route path="/ludo/match/:id" element={
-        <ProtectedRoute><SocketProvider><LudoMatchDetail /></SocketProvider></ProtectedRoute>
-      } />
       <Route path="/support" element={
         <ProtectedRoute><SocketProvider><Support /></SocketProvider></ProtectedRoute>
       } />
@@ -293,7 +284,6 @@ function AppRoutes() {
         <Route path="wins-bets" element={<AdminWinsBets />} />
         <Route path="spinner-records" element={<AdminSpinnerRecords />} />
         <Route path="bonus-records" element={<AdminBonusRecords />} />
-        <Route path="ludo" element={<AdminLudo />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="profit" element={<SubAdminBlock><AdminProfit /></SubAdminBlock>} />
         <Route path="kyc" element={<SubAdminBlock><AdminKyc /></SubAdminBlock>} />

@@ -702,7 +702,7 @@ const Users = () => {
           <DialogContentText>
             Are you sure you want to permanently delete <strong>{deleteConfirm.userName}</strong>?
             <br /><br />
-            This will delete <strong>all</strong> their data including wallet requests, bets, ludo history, spin records, and bonuses. <strong>This cannot be undone.</strong>
+            This will delete <strong>all</strong> their data including wallet requests, bets, spin records, and bonuses. <strong>This cannot be undone.</strong>
           </DialogContentText>
         </DialogContent>
         <DialogActions>

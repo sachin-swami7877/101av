@@ -73,24 +73,6 @@ const Home = () => {
 
   const gameCards = [
     {
-      id: 'ludo',
-      title: 'Ludo King',
-      subtitle: 'Room code • Bet & play',
-      path: '/ludo',
-      gradient: 'from-green-500 to-emerald-600',
-      // Add ludo-king.png to public folder for real Ludo King logo, or use external URL
-      image: '/ludo-classic1.png',
-      fallbackIcon: (
-        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 12h16v16H12V12zm24 0h16v16H36V12zM12 36h16v16H12V52zm24 0h16v16H36V52z" fill="currentColor" />
-          <circle cx="20" cy="20" r="4" fill="white" />
-          <circle cx="44" cy="20" r="4" fill="white" />
-          <circle cx="20" cy="44" r="4" fill="white" />
-          <circle cx="44" cy="44" r="4" fill="white" />
-        </svg>
-      ),
-    },
-    {
       id: 'aviator',
       title: 'Aviator',
       subtitle: 'Watch it fly & cash out',
@@ -165,8 +147,6 @@ const Home = () => {
             {gameCards.filter((g) => {
               if (g.id === 'aviator' && aviatorComingSoon) return false;
               if (g.id === 'lucky-draw' && spinnerComingSoon) return false;
-              if (g.id === 'ludo') return true;
-              if (g.id === 'whatsapp') return true;
               return true;
             }).map((game) => (
               <div key={game.id} className="flex flex-col">
@@ -246,14 +226,14 @@ const Home = () => {
           <div className="fixed bottom-20 left-3 right-3 max-w-md mx-auto z-40 bg-white rounded-xl p-3 shadow-lg flex items-center justify-between" style={{ animation: 'floatUpDown 2s ease-in-out infinite' }}>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <img src={appLogoUrl || '/logo.jpeg'} alt="RushkroLudo" className="w-10 h-10 rounded-full" />
+                <img src={appLogoUrl || '/logo.jpeg'} alt="101Dream" className="w-10 h-10 rounded-full" />
                 <span className="absolute top-0 right-0 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white" />
                 </span>
               </div>
               <div>
-                <p className="font-bold text-gray-800 text-sm">RushkroLudo App</p>
+                <p className="font-bold text-gray-800 text-sm">101Dream App</p>
                 <p className="text-gray-400 text-xs">Play faster in the app</p>
               </div>
             </div>

@@ -13,19 +13,12 @@ const navItems = [
     ),
   },
   {
-    path: '/ludo',
-    label: 'Ludo',
-    matchPaths: ['/ludo'],
+    path: '/aviator',
+    label: 'Aviator',
+    matchPaths: ['/aviator'],
     icon: (active) => (
-      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-        <rect x="3" y="3" width="7" height="7" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="14" y="3" width="7" height="7" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="3" y="14" width="7" height="7" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="14" y="14" width="7" height="7" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="6.5" cy="6.5" r="1" fill={active ? 'white' : 'currentColor'} stroke="none" />
-        <circle cx="17.5" cy="6.5" r="1" fill={active ? 'white' : 'currentColor'} stroke="none" />
-        <circle cx="6.5" cy="17.5" r="1" fill={active ? 'white' : 'currentColor'} stroke="none" />
-        <circle cx="17.5" cy="17.5" r="1" fill={active ? 'white' : 'currentColor'} stroke="none" />
+      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
       </svg>
     ),
   },

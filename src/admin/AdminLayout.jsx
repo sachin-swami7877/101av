@@ -16,7 +16,6 @@ import { adminAPI, settingsAPI } from '../services/api';
 // localStorage keys for "last viewed" timestamps
 const LS_MONEY   = 'adminViewedMoneyAt';
 const LS_ALERTS  = 'adminViewedAlertsAt';
-const LS_LUDO    = 'adminViewedLudoAt';
 const LS_KYC     = 'adminViewedKycAt';
 
 const AdminLayout = () => {
@@ -27,7 +26,6 @@ const AdminLayout = () => {
   // Unread counts (survive refresh via localStorage timestamps)
   const [unreadMoney, setUnreadMoney]   = useState(0); // deposits + withdrawals unread
   const [unreadAlerts, setUnreadAlerts] = useState(0); // all 4 categories unread
-  const [unreadLudo, setUnreadLudo]     = useState(0);
   const [unreadKyc, setUnreadKyc]       = useState(0);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -43,7 +41,6 @@ const AdminLayout = () => {
     { path: '/admin/spinner-records', label: 'Spinner Records', icon: '🎡', subAdmin: false },
     { path: '/admin/notifications', label: 'Notifications', icon: '🔔', badge: unreadAlerts, subAdmin: true },
     { path: '/admin/bonus-records', label: 'Bonus Records', icon: '🎁', subAdmin: false },
-    { path: '/admin/ludo', label: 'Ludo', icon: '🎲', badge: unreadLudo, subAdmin: true },
     { path: '/admin/profit', label: 'Profit', icon: '💹', subAdmin: false },
     { path: '/admin/kyc', label: 'KYC', icon: '🪪', badge: unreadKyc, subAdmin: false },
     { path: '/admin/database', label: 'Database', icon: '🗄️', subAdmin: false },
@@ -65,7 +62,6 @@ const AdminLayout = () => {
     { path: '/admin/money', label: 'Money', icon: HiOutlineCurrencyRupee, activeIcon: HiCurrencyRupee, badge: unreadMoney, subAdmin: true },
     { path: '/admin/bets', label: 'Bets', icon: IoBarChartOutline, activeIcon: IoBarChart, subAdmin: false },
     { path: '/admin/notifications', label: 'Alerts', icon: IoNotificationsOutline, activeIcon: IoNotifications, badge: unreadAlerts, subAdmin: true },
-    { path: '/admin/ludo', label: 'Ludo', icon: IoGridOutline, activeIcon: IoGrid, badge: unreadLudo, subAdmin: true },
   ];
 
   const mobileNavItems = isManager
@@ -84,18 +80,15 @@ const AdminLayout = () => {
     const params = {};
     const m = localStorage.getItem(LS_MONEY);
     const a = localStorage.getItem(LS_ALERTS);
-    const l = localStorage.getItem(LS_LUDO);
     const k = localStorage.getItem(LS_KYC);
     if (m) params.sinceMoney  = m;
     if (a) params.sinceAlerts = a;
-    if (l) params.sinceLudo   = l;
     if (k) params.sinceKyc    = k;
 
     adminAPI.getPendingCounts(Object.keys(params).length ? params : undefined).then(res => {
       const d = res.data;
       setUnreadMoney((d.unreadDeposits || 0) + (d.unreadWithdrawals || 0));
       setUnreadAlerts(d.unreadAlerts || 0);
-      setUnreadLudo(d.unreadLudo || 0);
       setUnreadKyc(d.unreadKyc   || 0);
     }).catch(() => {});
   }, []);
@@ -112,12 +105,6 @@ const AdminLayout = () => {
       setUnreadAlerts(prev => prev + 1);
       playNotificationSound();
     });
-    socket.on('admin:ludo-result-request', (data) => {
-      toast(`Ludo result submitted by ${data?.userName || 'a player'}`, { icon: '🎲', duration: 5000 });
-      setUnreadLudo(prev => prev + 1);
-      setUnreadAlerts(prev => prev + 1);
-      playNotificationSound();
-    });
     socket.on('admin:new-user', (data) => {
       toast(`New user registered: ${data?.phone || data?.email || 'Unknown'}`, { icon: '🆕', duration: 5000 });
       playNotificationSound();
@@ -131,7 +118,6 @@ const AdminLayout = () => {
     return () => {
       socket.off('admin:wallet-request');
       socket.off('admin:withdrawal-request');
-      socket.off('admin:ludo-result-request');
       socket.off('admin:new-user');
       socket.off('admin:kyc-request');
     };
@@ -147,10 +133,6 @@ const AdminLayout = () => {
     if (location.pathname.startsWith('/admin/notifications')) {
       localStorage.setItem(LS_ALERTS, now);
       setUnreadAlerts(0);
-    }
-    if (location.pathname.startsWith('/admin/ludo')) {
-      localStorage.setItem(LS_LUDO, now);
-      setUnreadLudo(0);
     }
     if (location.pathname.startsWith('/admin/kyc')) {
       localStorage.setItem(LS_KYC, now);
@@ -171,7 +153,7 @@ const AdminLayout = () => {
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <img src={appLogoUrl || '/logo.jpeg'} alt="Logo" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 ring-2 ring-white/20" />
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold leading-tight">Rushkro<span className="text-emerald-300">Ludo</span></h1>
+              <h1 className="text-lg font-bold leading-tight">101<span className="text-emerald-300">Dream</span></h1>
               {!isManager && (
                 <p className="text-white/60 text-xs leading-none">{role === 'superadmin' ? 'Super Admin' : 'Admin'}</p>
               )}

@@ -14,7 +14,6 @@ function fmt(date) {
 const TABS = [
   { key: 'wallet',  label: 'Wallet',   icon: '💰' },
   { key: 'aviator', label: 'Aviator',  icon: '✈️' },
-  { key: 'ludo',    label: 'Ludo',     icon: '🎲' },
   { key: 'spinner', label: 'Spinner',  icon: '🎡' },
   { key: 'kyc',     label: 'KYC',      icon: '🪪' },
 ];
@@ -54,7 +53,7 @@ const AdminUserDetail = () => {
     return <div className="text-center py-12 text-red-500 font-medium">{error}</div>;
   }
 
-  const { user, walletRequests, aviatorBets, ludoMatches, spinnerRecords, kycRequest, adminTransactions = [] } = data;
+  const { user, walletRequests, aviatorBets, spinnerRecords, kycRequest, adminTransactions = [] } = data;
 
   // Summary stats
   const totalDeposited = walletRequests
@@ -69,16 +68,11 @@ const AdminUserDetail = () => {
     .reduce((s, b) => s + (b.profit || 0), 0);
   const totalSpinWon = spinnerRecords.reduce((s, r) => s + r.winAmount, 0);
   const totalSpinCost = spinnerRecords.reduce((s, r) => s + r.spinCost, 0);
-  const totalLudoWins = ludoMatches.filter(
-    m => m.status === 'completed' && String(m.winnerId) === String(id)
-  ).length;
-
   // Pagination helper
   const getTabData = () => {
     switch (tab) {
       case 'wallet': return walletRequests;
       case 'aviator': return aviatorBets;
-      case 'ludo': return ludoMatches;
       case 'spinner': return spinnerRecords;
       default: return [];
     }
@@ -220,14 +214,10 @@ const AdminUserDetail = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-3">
+        <div className="grid grid-cols-2 gap-3 mt-3">
           <div className="bg-purple-50 rounded-xl p-3 text-center">
             <p className="text-xs text-gray-500 mb-0.5">Aviator Won</p>
             <p className="font-bold text-purple-600">₹{totalAviatorWon.toFixed(0)}</p>
-          </div>
-          <div className="bg-green-50 rounded-xl p-3 text-center">
-            <p className="text-xs text-gray-500 mb-0.5">Ludo Wins</p>
-            <p className="font-bold text-green-600">{totalLudoWins} match{totalLudoWins !== 1 ? 'es' : ''}</p>
           </div>
           <div className="bg-orange-50 rounded-xl p-3 text-center">
             <p className="text-xs text-gray-500 mb-0.5">Spinner Won</p>
@@ -256,7 +246,6 @@ const AdminUserDetail = () => {
               }`}>
                 {t.key === 'wallet' ? walletRequests.length :
                  t.key === 'aviator' ? aviatorBets.length :
-                 t.key === 'ludo' ? ludoMatches.length :
                  t.key === 'kyc' ? (kycRequest ? 1 : 0) :
                  spinnerRecords.length}
               </span>
@@ -377,56 +366,6 @@ const AdminUserDetail = () => {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* ── Ludo Tab ── */}
-      {tab === 'ludo' && (
-        <div className="space-y-2">
-          {ludoMatches.length === 0 ? (
-            <EmptyState icon="🎲" text="No Ludo matches" />
-          ) : pagedData.map(m => {
-            const isWinner = m.winnerId && String(m.winnerId) === String(id);
-            const opponent = m.players?.find(p => String(p.userId) !== String(id));
-            const myEntry = m.players?.find(p => String(p.userId) === String(id));
-            return (
-              <div key={m._id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      m.status === 'completed'
-                        ? (isWinner ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600')
-                        : m.status === 'cancelled'
-                          ? 'bg-gray-100 text-gray-600'
-                          : m.status === 'live'
-                            ? 'bg-blue-100 text-blue-600'
-                            : 'bg-amber-100 text-amber-600'
-                    }`}>
-                      {m.status === 'completed'
-                        ? (isWinner ? '🏆 Won' : '❌ Lost')
-                        : m.status}
-                    </span>
-                    <span className="text-sm font-semibold text-gray-700">₹{m.entryAmount}</span>
-                    {myEntry?.amountPaid && myEntry.amountPaid !== m.entryAmount && (
-                      <span className="text-xs text-gray-500">(paid ₹{myEntry.amountPaid})</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400 flex-shrink-0">{fmt(m.createdAt)}</p>
-                </div>
-                {opponent && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    vs <strong>{opponent.userName || 'Unknown'}</strong>
-                  </p>
-                )}
-                {m.roomCode && (
-                  <p className="text-xs text-gray-400 mt-0.5 font-mono">Room: {m.roomCode}</p>
-                )}
-                {m.cancelReason && (
-                  <p className="text-xs text-red-400 mt-0.5">Reason: {m.cancelReason}</p>
-                )}
-              </div>
-            );
-          })}
         </div>
       )}
 

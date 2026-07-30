@@ -19,7 +19,6 @@ const AdminSideDrawer = ({ open, onClose }) => {
   const allLinks = [
     { to: '/admin/spinner-records', label: 'Spinner Records', icon: PiSpinnerBallFill, subAdmin: false },
     { to: '/admin/bonus-records', label: 'Bonus Records', icon: HiOutlineGift, subAdmin: false },
-    { to: '/admin/ludo', label: 'Ludo', icon: IoGridOutline, subAdmin: true },
     { to: '/admin/profit', label: 'Profit', icon: IoTrendingUpOutline, subAdmin: false },
     { to: '/admin/kyc', label: 'KYC', icon: HiOutlineIdentification, subAdmin: false },
     { to: '/admin/database', label: 'Database', icon: IoServerOutline, subAdmin: false },

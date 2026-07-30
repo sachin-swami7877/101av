@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { compressImage } from '../utils/compressImage';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
-import { walletAPI, gameAPI, authAPI, settingsAPI, spinnerAPI, ludoAPI } from '../services/api';
+import { walletAPI, gameAPI, authAPI, settingsAPI, spinnerAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -21,7 +21,7 @@ const Profile = () => {
   const { socket } = useSocket();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [stats, setStats] = useState({ totalBets: 0, totalWins: 0, todayEarnings: 0, spinnerEarnings: 0, ludoEarnings: 0 });
+  const [stats, setStats] = useState({ totalBets: 0, totalWins: 0, todayEarnings: 0, spinnerEarnings: 0 });
   const [support, setSupport] = useState({ supportPhone: null, supportWhatsApp: null });
   const whatsAppNumber = support.supportWhatsApp || support.supportPhone;
   const [showInstallTip, setShowInstallTip] = useState(false);
@@ -168,32 +168,11 @@ const Profile = () => {
         // Silent fail for spinner earnings
       }
 
-      // Fetch ludo earnings for today (profit = prize - entryAmount for wins, -entryAmount for losses)
-      let ludoEarnings = 0;
-      try {
-        const ludoRes = await ludoAPI.getMyMatches({ status: 'history', limit: 100 });
-        const ludoMatches = ludoRes.data?.records || (Array.isArray(ludoRes.data) ? ludoRes.data : []);
-        const todayLudoMatches = ludoMatches.filter(m => new Date(m.createdAt).toDateString() === today);
-        ludoEarnings = todayLudoMatches.reduce((sum, m) => {
-          if (m.status === 'cancelled') return sum;
-          if (!m.winnerId) return sum;
-          const isWinner = m.winnerId === user?._id;
-          if (isWinner) {
-            const prize = Math.round(2 * m.entryAmount * 0.9);
-            return sum + (prize - m.entryAmount);
-          }
-          return sum - m.entryAmount;
-        }, 0);
-      } catch (err) {
-        // Silent fail for ludo earnings
-      }
-
       setStats({
         totalBets: bets.length,
         totalWins: bets.filter(b => b.status === 'won').length,
-        todayEarnings: todayEarnings + spinnerEarnings + ludoEarnings,
+        todayEarnings: todayEarnings + spinnerEarnings,
         spinnerEarnings,
-        ludoEarnings,
       });
     } catch (error) {
       const isNetworkError = !error.response || error.code === 'ERR_NETWORK';
@@ -267,23 +246,6 @@ const Profile = () => {
   ];
 
   const gameCards = [
-    {
-      id: 'ludo',
-      title: 'Ludo',
-      subtitle: 'Room code • Bet & play',
-      path: '/ludo',
-      gradient: 'from-green-500 to-emerald-600',
-      image: '/ludo-classic1.png',
-      fallbackIcon: (
-        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 12h16v16H12V12zm24 0h16v16H36V12zM12 36h16v16H12V52zm24 0h16v16H36V52z" fill="currentColor" />
-          <circle cx="20" cy="20" r="4" fill="white" />
-          <circle cx="44" cy="20" r="4" fill="white" />
-          <circle cx="20" cy="44" r="4" fill="white" />
-          <circle cx="44" cy="44" r="4" fill="white" />
-        </svg>
-      ),
-    },
     {
       id: 'aviator',
       title: 'Aviator',
@@ -420,7 +382,7 @@ const Profile = () => {
               <p className="text-sm opacity-80">Wallet Balance</p>
               <p className="text-2xl sm:text-3xl font-bold mt-1 truncate">₹{user?.walletBalance?.toFixed(2) || '0.00'}</p>
               <p className="text-sm opacity-80 mt-1">Today's Earnings: ₹{stats.todayEarnings.toFixed(2)}</p>
-              <p className="text-xs opacity-70 mt-0.5">(Aviator: ₹{(stats.todayEarnings - stats.spinnerEarnings - stats.ludoEarnings).toFixed(2)} | Spinner: ₹{stats.spinnerEarnings.toFixed(2)} | Ludo: ₹{stats.ludoEarnings.toFixed(2)})</p>
+              <p className="text-xs opacity-70 mt-0.5">(Aviator: ₹{(stats.todayEarnings - stats.spinnerEarnings).toFixed(2)} | Spinner: ₹{stats.spinnerEarnings.toFixed(2)})</p>
               <div className="flex gap-4 mt-2 pt-2 border-t border-white/20">
                 <div><p className="text-xs opacity-70">Deposit</p><p className="text-sm font-bold">₹{balanceDetails.depositBalance.toFixed(2)}</p></div>
                 <div><p className="text-xs opacity-70">Earnings</p><p className="text-sm font-bold">₹{balanceDetails.earningsBalance.toFixed(2)}</p></div>
@@ -444,7 +406,7 @@ const Profile = () => {
                 Copy
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-2">Share this code — earn 3-4% when your friend wins a Ludo match</p>
+            <p className="text-xs text-gray-400 mt-2">Share this code — earn free spins when your friends join</p>
           </div>
         )}
 
@@ -684,7 +646,7 @@ const Profile = () => {
           <h3 className="font-bold text-gray-800 mb-3">Share & Invite</h3>
           <div className="flex gap-3">
             <a
-              href={`https://wa.me/?text=${encodeURIComponent('Play Ludo, Aviator & Lucky Spinner! Win real cash with instant UPI withdrawals. Join now: ' + window.location.origin)}`}
+              href={`https://wa.me/?text=${encodeURIComponent('Play Aviator & Lucky Spinner on 101Dream! Win real cash with instant UPI withdrawals. Join now: ' + window.location.origin)}`}
               rel="noopener noreferrer"
               className="flex-1 bg-[#25D366] text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 text-sm"
             >

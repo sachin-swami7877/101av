@@ -74,12 +74,7 @@ function CleanupSection({ title, icon, type }) {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const photoTypes = ['ludo_photos', 'deposit_photos', 'kyc_photos'];
-      const res = photoTypes.includes(type)
-        ? await adminAPI.cleanupPhotos({ startDate, endDate, photoType: type })
-        : type === 'photos'
-          ? await adminAPI.cleanupPhotos({ startDate, endDate })
-          : await adminAPI.cleanupLudoMatches({ startDate, endDate });
+      const res = await adminAPI.cleanupPhotos({ startDate, endDate, photoType: type });
       toast.success(res.data.message);
       setPreview(null);
       setConfirmOpen(false);
@@ -138,16 +133,6 @@ function CleanupSection({ title, icon, type }) {
             <p className="text-sm font-medium text-gray-700">
               Found <span className="text-red-600 font-bold">{preview.count}</span> items to delete
             </p>
-            {type === 'photos' && preview.ludoPhotos != null && (
-              <p className="text-xs text-gray-500">
-                Ludo screenshots: {preview.ludoPhotos} | Wallet screenshots: {preview.walletPhotos}
-              </p>
-            )}
-            {type === 'ludo' && preview.expired != null && (
-              <p className="text-xs text-gray-500">
-                Expired waiting: {preview.expired} | Cancelled: {preview.cancelled}
-              </p>
-            )}
             {preview.sampleUrl && (
               <div className="bg-white border border-gray-200 rounded-lg p-2">
                 <p className="text-[10px] text-gray-400 mb-1 font-semibold uppercase">Sample URL (Cloudinary confirm)</p>
@@ -214,12 +199,6 @@ export default function AdminDatabase() {
       <p className="text-sm text-gray-500">Clean up old data to save storage and improve performance.</p>
 
       <CleanupSection
-        title="Delete Ludo Result Screenshots"
-        icon="🎲"
-        type="ludo_photos"
-      />
-
-      <CleanupSection
         title="Delete Deposit Screenshots"
         icon="💰"
         type="deposit_photos"
@@ -229,12 +208,6 @@ export default function AdminDatabase() {
         title="Delete KYC Aadhaar Photos"
         icon="🪪"
         type="kyc_photos"
-      />
-
-      <CleanupSection
-        title="Delete Expired & Cancelled Ludo Matches"
-        icon="🗑️"
-        type="ludo"
       />
     </div>
   );
