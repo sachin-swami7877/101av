@@ -5,10 +5,10 @@ const ContactUs = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us - RushkroLudo | Customer Support</title>
-        <meta name="description" content="Contact RushkroLudo for any queries, payment issues, or game support. Reach us via Instagram, Telegram, or in-app support. We're here to help 24/7." />
-        <meta name="keywords" content="RushkroLudo contact, rushkroludo, Rushkro Ludo, Rush Kro Ludo, RushLudo, rushludo, Rush Ludo, RushKro, rushkro, Ludo Rush, LudoRush, customer support, help, payment issue, game support, rushkroludo helpline, rushkroludo complaint, rushkroludo customer care" />
-        <link rel="canonical" href="https://rushkroludo.com/contact" />
+        <title>Contact Us - 101Dream | Customer Support</title>
+        <meta name="description" content="Contact 101Dream for any queries, payment issues, or game support. Reach us via Instagram, Telegram, or in-app support. We're here to help 24/7." />
+        <meta name="keywords" content="101Dream contact, 101dream, Rushkro Ludo, Rush Kro Ludo, RushLudo, rushludo, Rush Ludo, RushKro, rushkro, Ludo Rush, LudoRush, customer support, help, payment issue, game support, 101dream helpline, 101dream complaint, 101dream customer care" />
+        <link rel="canonical" href="https://101dream.com/contact" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#1a1a2e] to-[#0f0f1e] text-white">
@@ -24,7 +24,7 @@ const ContactUs = () => {
                   <path d="M30 4l8 5-14 9 6-14z" fill="white" opacity="0.85"/>
                 </svg>
               </div>
-              <span className="text-xl font-extrabold tracking-tight">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
             </Link>
             <nav className="flex items-center gap-4">
               <Link to="/login" className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all">Play Now</Link>
@@ -38,34 +38,34 @@ const ContactUs = () => {
           </h1>
 
           <div className="space-y-8 text-white/80 text-lg leading-relaxed">
-            <p>Have questions or need help? We're here for you! Reach out to the RushkroLudo team through any of the following channels.</p>
+            <p>Have questions or need help? We're here for you! Reach out to the 101Dream team through any of the following channels.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <a href="https://www.instagram.com/rushkroludo/" target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-pink-500/30 transition-all block">
+              <a href="https://www.instagram.com/101dream/" target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-pink-500/30 transition-all block">
                 <div className="text-4xl mb-3">&#x1F4F7;</div>
                 <h2 className="text-xl font-bold text-white mb-2">Instagram</h2>
-                <p className="text-white/60">@rushkroludo</p>
+                <p className="text-white/60">@101dream</p>
                 <p className="text-pink-400 mt-2 text-sm font-semibold">Follow us for updates & offers</p>
               </a>
 
-              <a href="https://t.me/rushkroludo" target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-500/30 transition-all block">
+              <a href="https://t.me/101dream" target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-500/30 transition-all block">
                 <div className="text-4xl mb-3">&#x2708;</div>
                 <h2 className="text-xl font-bold text-white mb-2">Telegram</h2>
-                <p className="text-white/60">@rushkroludo</p>
+                <p className="text-white/60">@101dream</p>
                 <p className="text-blue-400 mt-2 text-sm font-semibold">Join our community</p>
               </a>
 
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
                 <div className="text-4xl mb-3">&#x1F4AC;</div>
                 <h2 className="text-xl font-bold text-white mb-2">In-App Support</h2>
-                <p className="text-white/60">Login to RushkroLudo and go to Support section</p>
+                <p className="text-white/60">Login to 101Dream and go to Support section</p>
                 <p className="text-violet-400 mt-2 text-sm font-semibold">24/7 available</p>
               </div>
 
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
                 <div className="text-4xl mb-3">&#x1F310;</div>
                 <h2 className="text-xl font-bold text-white mb-2">Website</h2>
-                <p className="text-white/60">rushkroludo.com</p>
+                <p className="text-white/60">101dream.com</p>
                 <p className="text-violet-400 mt-2 text-sm font-semibold">Play games & win real cash</p>
               </div>
             </div>
@@ -73,10 +73,10 @@ const ContactUs = () => {
             <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-4">Common Queries</h2>
               <div className="space-y-3">
-                <p><strong className="text-white">Payment not received?</strong> — Send your transaction ID on <a href="https://wa.me/919166821247" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">WhatsApp</a> or <a href="https://www.instagram.com/rushkroludo/" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">Instagram @rushkroludo</a></p>
+                <p><strong className="text-white">Payment not received?</strong> — Send your transaction ID on <a href="https://wa.me/919166821247" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">WhatsApp</a> or <a href="https://www.instagram.com/101dream/" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">Instagram @101dream</a></p>
                 <p><strong className="text-white">Withdrawal pending?</strong> — Withdrawals are usually instant. If delayed, call us at <a href="tel:+919166821247" className="text-violet-400 hover:underline">+91 9166821247</a> or message on <a href="https://wa.me/919166821247" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">WhatsApp</a></p>
-                <p><strong className="text-white">Account issues?</strong> — DM us on <a href="https://www.instagram.com/rushkroludo/" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">Instagram @rushkroludo</a> with your registered mobile number</p>
-                <p><strong className="text-white">Game bug?</strong> — Screenshot the issue and send it via <a href="https://t.me/rushkroludo" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Telegram</a> or <a href="https://wa.me/919166821247" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">WhatsApp</a></p>
+                <p><strong className="text-white">Account issues?</strong> — DM us on <a href="https://www.instagram.com/101dream/" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">Instagram @101dream</a> with your registered mobile number</p>
+                <p><strong className="text-white">Game bug?</strong> — Screenshot the issue and send it via <a href="https://t.me/101dream" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Telegram</a> or <a href="https://wa.me/919166821247" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">WhatsApp</a></p>
               </div>
             </div>
 
@@ -97,19 +97,19 @@ const ContactUs = () => {
                   <p className="font-bold text-white text-sm">WhatsApp</p>
                   <p className="text-white/50 text-xs">+91 9166821247</p>
                 </a>
-                <a href="https://www.instagram.com/rushkroludo/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/[0.05] border border-white/10 hover:border-pink-500/40 hover:bg-pink-500/10 transition-all text-center">
+                <a href="https://www.instagram.com/101dream/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/[0.05] border border-white/10 hover:border-pink-500/40 hover:bg-pink-500/10 transition-all text-center">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 flex items-center justify-center">
                     <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
                   </div>
                   <p className="font-bold text-white text-sm">Instagram</p>
-                  <p className="text-white/50 text-xs">@rushkroludo</p>
+                  <p className="text-white/50 text-xs">@101dream</p>
                 </a>
               </div>
             </div>
 
             <div className="text-center pt-8">
               <Link to="/login" className="inline-block px-10 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-2xl shadow-violet-600/30 hover:shadow-violet-500/50 transition-all hover:scale-[1.02]">
-                Join RushkroLudo Now
+                Join 101Dream Now
               </Link>
             </div>
           </div>
@@ -118,7 +118,7 @@ const ContactUs = () => {
         <footer className="border-t border-white/5">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="font-extrabold">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
               <div className="flex items-center gap-6 text-sm text-white/40">
                 <Link to="/about" className="hover:text-white/70">About</Link>
                 <Link to="/privacy" className="hover:text-white/70">Privacy Policy</Link>

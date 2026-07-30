@@ -5,9 +5,9 @@ const PrivacyPolicy = () => {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy - RushkroLudo</title>
-        <meta name="description" content="RushkroLudo Privacy Policy. Learn how we protect your data, handle payments securely, and ensure safe gaming experience." />
-        <link rel="canonical" href="https://rushkroludo.com/privacy" />
+        <title>Privacy Policy - 101Dream</title>
+        <meta name="description" content="101Dream Privacy Policy. Learn how we protect your data, handle payments securely, and ensure safe gaming experience." />
+        <link rel="canonical" href="https://101dream.com/privacy" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#1a1a2e] to-[#0f0f1e] text-white">
@@ -23,7 +23,7 @@ const PrivacyPolicy = () => {
                   <path d="M30 4l8 5-14 9 6-14z" fill="white" opacity="0.85"/>
                 </svg>
               </div>
-              <span className="text-xl font-extrabold tracking-tight">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
             </Link>
             <nav className="flex items-center gap-4">
               <Link to="/login" className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all">Play Now</Link>
@@ -68,7 +68,7 @@ const PrivacyPolicy = () => {
             <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-4">Contact Us</h2>
               <p>If you have any questions about our privacy policy, please contact us through our in-app support or visit our <Link to="/contact" className="text-violet-400 hover:underline">Contact page</Link>.</p>
-              <p className="mt-2">Instagram: <a href="https://www.instagram.com/rushkroludo/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:underline">@rushkroludo</a></p>
+              <p className="mt-2">Instagram: <a href="https://www.instagram.com/101dream/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:underline">@101dream</a></p>
             </div>
           </div>
         </main>
@@ -76,7 +76,7 @@ const PrivacyPolicy = () => {
         <footer className="border-t border-white/5">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="font-extrabold">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
               <div className="flex items-center gap-6 text-sm text-white/40">
                 <Link to="/about" className="hover:text-white/70">About</Link>
                 <Link to="/privacy" className="hover:text-white/70">Privacy Policy</Link>

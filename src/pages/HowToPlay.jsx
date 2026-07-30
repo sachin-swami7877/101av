@@ -5,10 +5,10 @@ const HowToPlay = () => {
   return (
     <>
       <Helmet>
-        <title>How to Play - RushkroLudo | Ludo, Aviator & Spinner Guide</title>
-        <meta name="description" content="Learn how to play Ludo King, Aviator crash game and Lucky Spinner on RushkroLudo. Step-by-step guide to win real cash. Download and start playing now!" />
-        <meta name="keywords" content="how to play RushkroLudo, rushkroludo, Rushkro Ludo, Rush Kro Ludo, RushLudo, rushludo, Rush Ludo, RushKro, rushkro, Ludo Rush, LudoRush, Ludo King guide, Aviator game tips, how to win real cash, online Ludo, crash game guide, rushkroludo kaise khele, ludo kaise khele, aviator game kaise khele" />
-        <link rel="canonical" href="https://rushkroludo.com/how-to-play" />
+        <title>How to Play - 101Dream | Aviator & Spinner Guide</title>
+        <meta name="description" content="Learn how to play the Aviator crash game and Lucky Spinner on 101Dream. Step-by-step guide to win real cash. Start playing now!" />
+        <meta name="keywords" content="how to play 101Dream, Aviator game tips, crash game guide, Lucky Spinner, how to win real cash, aviator game kaise khele" />
+        <link rel="canonical" href="https://101dream.com/how-to-play" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#1a1a2e] to-[#0f0f1e] text-white">
@@ -24,7 +24,7 @@ const HowToPlay = () => {
                   <path d="M30 4l8 5-14 9 6-14z" fill="white" opacity="0.85"/>
                 </svg>
               </div>
-              <span className="text-xl font-extrabold tracking-tight">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
             </Link>
             <nav className="flex items-center gap-4">
               <Link to="/login" className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all">Play Now</Link>
@@ -41,27 +41,14 @@ const HowToPlay = () => {
 
             {/* Getting Started */}
             <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-4">Getting Started on RushkroLudo</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Getting Started on 101Dream</h2>
               <ol className="space-y-3 list-decimal list-inside">
-                <li><strong className="text-white">Visit</strong> <a href="https://rushkroludo.com" className="text-violet-400 hover:underline">rushkroludo.com</a> on your mobile or desktop</li>
+                <li><strong className="text-white">Visit</strong> <a href="https://101dream.com" className="text-violet-400 hover:underline">101dream.com</a> on your mobile or desktop</li>
                 <li><strong className="text-white">Sign Up</strong> with your email address</li>
                 <li><strong className="text-white">Add Money</strong> to your wallet using UPI (Google Pay, PhonePe, Paytm)</li>
-                <li><strong className="text-white">Choose a Game</strong> — Ludo, Aviator, or Spinner</li>
+                <li><strong className="text-white">Choose a Game</strong> — Aviator or Spinner</li>
                 <li><strong className="text-white">Win & Withdraw</strong> — Cash out instantly to your UPI</li>
               </ol>
-            </div>
-
-            {/* Ludo */}
-            <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-4">&#x1F3B2; How to Play Ludo King</h2>
-              <ul className="space-y-2 list-disc list-inside">
-                <li>Select Ludo from the home screen</li>
-                <li>Choose your bet amount (minimum Rs 50)</li>
-                <li>Get matched with a real player</li>
-                <li>Roll the dice and move your tokens to the finish</li>
-                <li>Winner takes the prize pool!</li>
-              </ul>
-              <p className="mt-4 text-violet-400 font-semibold">Tip: Move all 4 tokens strategically. Don't keep all tokens in one path!</p>
             </div>
 
             {/* Aviator */}
@@ -104,12 +91,12 @@ const HowToPlay = () => {
               <h2 className="text-2xl font-bold text-white mb-4">Frequently Asked Questions</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-bold text-white">Is RushkroLudo safe?</h3>
-                  <p>Yes! RushkroLudo uses secure payment gateways and encrypted connections to protect your data and money.</p>
+                  <h3 className="font-bold text-white">Is 101Dream safe?</h3>
+                  <p>Yes! 101Dream uses secure payment gateways and encrypted connections to protect your data and money.</p>
                 </div>
                 <div>
                   <h3 className="font-bold text-white">What is the minimum deposit?</h3>
-                  <p>Minimum deposit is Rs 100. Aviator bets start from Rs 10 and Ludo bets start from Rs 50.</p>
+                  <p>Minimum deposit is Rs 100. Aviator bets start from Rs 10.</p>
                 </div>
                 <div>
                   <h3 className="font-bold text-white">How fast are withdrawals?</h3>
@@ -117,7 +104,7 @@ const HowToPlay = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-white">Can I play on mobile?</h3>
-                  <p>Yes! RushkroLudo works perfectly on all mobile browsers. You can also install it as an app from our website.</p>
+                  <p>Yes! 101Dream works perfectly on all mobile browsers. You can also install it as an app from our website.</p>
                 </div>
               </div>
             </div>
@@ -133,7 +120,7 @@ const HowToPlay = () => {
         <footer className="border-t border-white/5">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="font-extrabold">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
               <div className="flex items-center gap-6 text-sm text-white/40">
                 <Link to="/about" className="hover:text-white/70">About</Link>
                 <Link to="/privacy" className="hover:text-white/70">Privacy Policy</Link>

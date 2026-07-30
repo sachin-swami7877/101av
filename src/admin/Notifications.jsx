@@ -44,15 +44,6 @@ const Notifications = () => {
       }, ...prev]);
     });
 
-    socket.on('admin:ludo-result-request', (data) => {
-      setNotifications(prev => [{
-        type: 'ludo_result',
-        userName: data.userName || 'Player',
-        matchId: data.matchId,
-        createdAt: new Date()
-      }, ...prev]);
-    });
-
     socket.on('admin:kyc-request', (data) => {
       setNotifications(prev => [{
         type: 'kyc',
@@ -66,7 +57,6 @@ const Notifications = () => {
     return () => {
       socket.off('admin:wallet-request');
       socket.off('admin:withdrawal-request');
-      socket.off('admin:ludo-result-request');
       socket.off('admin:kyc-request');
     };
   }, [socket]);
@@ -76,16 +66,6 @@ const Notifications = () => {
       const res = await adminAPI.getNotifications();
       // Transform pending requests into notifications format
       const transformed = res.data.map(req => {
-        if (req.type === 'ludo_result') {
-          return {
-            _id: req._id,
-            type: 'ludo_result',
-            userName: req.userName || req.claims?.[0]?.userName || 'Player',
-            matchId: req.matchId,
-            claims: req.claims,
-            createdAt: req.createdAt,
-          };
-        }
         return {
           _id: req._id,
           type: req.type,
@@ -109,8 +89,6 @@ const Notifications = () => {
         return { icon: '💰', color: 'bg-green-100', text: 'Deposit Request' };
       case 'withdrawal':
         return { icon: '💸', color: 'bg-red-100', text: 'Withdrawal Request' };
-      case 'ludo_result':
-        return { icon: '🎲', color: 'bg-purple-100', text: 'Ludo Result Request' };
       case 'kyc':
         return { icon: '🪪', color: 'bg-blue-100', text: 'KYC Request' };
       default:
@@ -131,7 +109,6 @@ const Notifications = () => {
         {[
           { label: 'Deposits', count: pendingSummary.deposits, color: 'bg-emerald-100 text-emerald-700', path: '/admin/money' },
           { label: 'Withdrawals', count: pendingSummary.withdrawals, color: 'bg-rose-100 text-rose-700', path: '/admin/money' },
-          { label: 'Ludo', count: pendingSummary.ludo, color: 'bg-purple-100 text-purple-700', path: '/admin/ludo' },
           { label: 'KYC', count: pendingSummary.kyc, color: 'bg-blue-100 text-blue-700', path: '/admin/kyc' },
         ].map(({ label, count, color, path }) => (
           <button
@@ -158,10 +135,9 @@ const Notifications = () => {
             return (
               <div
                 key={notification._id || index}
-                className={`bg-white rounded-xl p-4 shadow-sm ${notification.type === 'kyc' || notification.type === 'ludo_result' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                className={`bg-white rounded-xl p-4 shadow-sm ${notification.type === 'kyc' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                 onClick={() => {
                   if (notification.type === 'kyc') navigate('/admin/kyc');
-                  else if (notification.type === 'ludo_result') navigate('/admin/ludo');
                 }}
               >
                 <div className="flex gap-4">
@@ -172,12 +148,7 @@ const Notifications = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-medium text-gray-800">{typeInfo.text}</h3>
-                        {notification.type === 'ludo_result' ? (
-                          <p className="text-sm text-gray-600">
-                            {notification.userName} submitted result
-                            {notification.claims?.length > 1 && ` (${notification.claims.length} claims)`}
-                          </p>
-                        ) : notification.type === 'kyc' ? (
+                        {notification.type === 'kyc' ? (
                           <p className="text-sm text-gray-600">
                             {notification.userName} {notification.userPhone && `(${notification.userPhone})`} — tap to review
                           </p>
@@ -187,7 +158,7 @@ const Notifications = () => {
                           </p>
                         )}
                       </div>
-                      {notification.type !== 'ludo_result' && notification.type !== 'kyc' && (
+                      {notification.type !== 'kyc' && (
                         <p className={`font-bold ${notification.type === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
                           ₹{notification.amount}
                         </p>

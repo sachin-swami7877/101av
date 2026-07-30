@@ -23,23 +23,11 @@ const Settings = () => {
   const [termsGeneral, setTermsGeneral] = useState('');
   const [dummyUserCount, setDummyUserCount] = useState(10);
   const [layout, setLayout] = useState(false);
-  const [ludoDummyRunningBattles, setLudoDummyRunningBattles] = useState(15);
-  const [ludoDummyOpenBattles, setLudoDummyOpenBattles] = useState(4);
-  // Ludo tiered commission
-  const [ludoCommTier1Max, setLudoCommTier1Max] = useState(250);
-  const [ludoCommTier1Pct, setLudoCommTier1Pct] = useState(10);
-  const [ludoCommTier2Max, setLudoCommTier2Max] = useState(600);
-  const [ludoCommTier2Pct, setLudoCommTier2Pct] = useState(8);
-  const [ludoCommTier3Pct, setLudoCommTier3Pct] = useState(5);
   const [userWarning, setUserWarning] = useState('');
   const [withdrawalsEnabled, setWithdrawalsEnabled] = useState(true);
   const [withdrawalDisableReason, setWithdrawalDisableReason] = useState('');
-  // Ludo toggle & warning
   const [landingPlayers, setLandingPlayers] = useState('1000+');
   const [landingWonToday, setLandingWonToday] = useState('₹1K+');
-  const [ludoEnabled, setLudoEnabled] = useState(true);
-  const [ludoDisableReason, setLudoDisableReason] = useState('');
-  const [ludoWarning, setLudoWarning] = useState('');
   const [logoUrl, setLogoUrl] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -48,9 +36,9 @@ const Settings = () => {
   const [qrUploading, setQrUploading] = useState(false);
   const [aviatorComingSoon, setAviatorComingSoon] = useState(false);
   const [spinnerComingSoon, setSpinnerComingSoon] = useState(false);
-  const [notificationTitle, setNotificationTitle] = useState('RushkroLudo');
-  const [notificationMessage, setNotificationMessage] = useState('Refer RushkroLudo & earn 2 free spins + commission on every friend\'s win. Share your code now!');
-  const [websiteUrl, setWebsiteUrl] = useState('https://rushkroludo.com');
+  const [notificationTitle, setNotificationTitle] = useState('101Dream');
+  const [notificationMessage, setNotificationMessage] = useState('Refer 101Dream & earn 2 free spins on every friend\'s join. Share your code now!');
+  const [websiteUrl, setWebsiteUrl] = useState('https://101dream.com');
   const [notificationImage, setNotificationImage] = useState(null);
   const [notificationImageUrl, setNotificationImageUrl] = useState(null);
   const [sendingNotification, setSendingNotification] = useState(false);
@@ -80,19 +68,9 @@ const Settings = () => {
       setLayout(d.layout ?? false);
       setLandingPlayers(d.landingPlayers || '1000+');
       setLandingWonToday(d.landingWonToday || '₹1K+');
-      setLudoDummyRunningBattles(d.ludoDummyRunningBattles ?? 15);
-      setLudoDummyOpenBattles(d.ludoDummyOpenBattles ?? 4);
-      setLudoCommTier1Max(d.ludoCommTier1Max ?? 250);
-      setLudoCommTier1Pct(d.ludoCommTier1Pct ?? 10);
-      setLudoCommTier2Max(d.ludoCommTier2Max ?? 600);
-      setLudoCommTier2Pct(d.ludoCommTier2Pct ?? 8);
-      setLudoCommTier3Pct(d.ludoCommTier3Pct ?? 5);
       setUserWarning(d.userWarning || '');
       setWithdrawalsEnabled(d.withdrawalsEnabled ?? true);
       setWithdrawalDisableReason(d.withdrawalDisableReason || '');
-      setLudoEnabled(d.ludoEnabled ?? true);
-      setLudoDisableReason(d.ludoDisableReason || '');
-      setLudoWarning(d.ludoWarning || '');
       setLogoUrl(d.logoUrl || null);
       setQrCodeUrl(d.qrCodeUrl || null);
       setAviatorComingSoon(d.aviatorComingSoon ?? false);
@@ -169,30 +147,6 @@ const Settings = () => {
     finally { setSaving(false); }
   };
 
-  const handleSaveLudo = async () => {
-    const dummy = Number(ludoDummyRunningBattles);
-    if (dummy < 0 || dummy > 50) {
-      toast.error('Dummy battles: enter between 0 and 50');
-      return;
-    }
-    setSaving(true);
-    try {
-      await adminAPI.updateSettings({
-        ludoDummyRunningBattles: dummy,
-        ludoDummyOpenBattles: Math.min(20, Math.max(0, Number(ludoDummyOpenBattles) || 0)),
-        ludoCommTier1Max: Number(ludoCommTier1Max),
-        ludoCommTier1Pct: Number(ludoCommTier1Pct),
-        ludoCommTier2Max: Number(ludoCommTier2Max),
-        ludoCommTier2Pct: Number(ludoCommTier2Pct),
-        ludoCommTier3Pct: Number(ludoCommTier3Pct),
-      });
-      toast.success('Ludo settings saved');
-    } catch {
-      toast.error('Failed to save');
-    }
-    finally { setSaving(false); }
-  };
-
   const handleUploadLogo = async () => {
     if (!logoFile) return;
     setLogoUploading(true);
@@ -232,7 +186,7 @@ const Settings = () => {
     setSendingNotification(true);
     try {
       const fd = new FormData();
-      fd.append('title', notificationTitle || 'RushkroLudo');
+      fd.append('title', notificationTitle || '101Dream');
       fd.append('message', notificationMessage);
       if (websiteUrl) {
         fd.append('websiteUrl', websiteUrl);
@@ -385,166 +339,6 @@ const Settings = () => {
         }} disabled={saving} className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50">Save Warning</button>
       </Section>
 
-
-      {/* Ludo */}
-      <Section title="Ludo Game" desc="Dummy running battles and commission tiers.">
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-end gap-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Dummy running battles</label>
-              <input
-                type="number"
-                min={0}
-                max={50}
-                value={ludoDummyRunningBattles}
-                onChange={(e) => setLudoDummyRunningBattles(e.target.value)}
-                className="w-28 px-3 py-2 border rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Dummy open battles</label>
-              <input
-                type="number"
-                min={0}
-                max={20}
-                value={ludoDummyOpenBattles}
-                onChange={(e) => setLudoDummyOpenBattles(e.target.value)}
-                className="w-28 px-3 py-2 border rounded-lg text-sm"
-              />
-            </div>
-            <button onClick={handleSaveLudo} disabled={saving} className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50">Save</button>
-          </div>
-        </div>
-        {/* Commission Tiers */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Commission Tiers (Ludo)</p>
-          <div className="space-y-3">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-blue-700 mb-2">Tier 1: Entry up to ₹</p>
-              <div className="flex gap-2 items-center">
-                <input type="number" value={ludoCommTier1Max} onChange={(e) => setLudoCommTier1Max(e.target.value)} className="w-24 px-2 py-1.5 border rounded text-sm" />
-                <span className="text-sm text-gray-600">→</span>
-                <input type="number" value={ludoCommTier1Pct} onChange={(e) => setLudoCommTier1Pct(e.target.value)} className="w-20 px-2 py-1.5 border rounded text-sm" />
-                <span className="text-sm text-gray-600">% commission</span>
-              </div>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-purple-700 mb-2">Tier 2: Entry ₹{Number(ludoCommTier1Max)+1} to ₹</p>
-              <div className="flex gap-2 items-center">
-                <input type="number" value={ludoCommTier2Max} onChange={(e) => setLudoCommTier2Max(e.target.value)} className="w-24 px-2 py-1.5 border rounded text-sm" />
-                <span className="text-sm text-gray-600">→</span>
-                <input type="number" value={ludoCommTier2Pct} onChange={(e) => setLudoCommTier2Pct(e.target.value)} className="w-20 px-2 py-1.5 border rounded text-sm" />
-                <span className="text-sm text-gray-600">% commission</span>
-              </div>
-            </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-green-700 mb-2">Tier 3: Entry above ₹{ludoCommTier2Max}</p>
-              <div className="flex gap-2 items-center">
-                <input type="number" value={ludoCommTier3Pct} onChange={(e) => setLudoCommTier3Pct(e.target.value)} className="w-20 px-2 py-1.5 border rounded text-sm" />
-                <span className="text-sm text-gray-600">% commission</span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={async () => {
-              setSaving(true);
-              try {
-                await adminAPI.updateSettings({
-                  ludoCommTier1Max: Number(ludoCommTier1Max),
-                  ludoCommTier1Pct: Number(ludoCommTier1Pct),
-                  ludoCommTier2Max: Number(ludoCommTier2Max),
-                  ludoCommTier2Pct: Number(ludoCommTier2Pct),
-                  ludoCommTier3Pct: Number(ludoCommTier3Pct),
-                });
-                toast.success('Commission tiers saved');
-              } catch { toast.error('Failed to save commission tiers'); }
-              finally { setSaving(false); }
-            }}
-            disabled={saving}
-            className="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
-          >
-            Save Commission
-          </button>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">Duration: minutes from game start to expiry. Dummy battles: user app shows this many fake running battles (random 10–N). Names/amounts refresh every 15 min.</p>
-      </Section>
-
-      {/* Ludo Toggle */}
-      <Section title="Ludo Matches" desc={ludoEnabled ? 'Users can create & join Ludo matches.' : 'Ludo matches are disabled — users cannot create or join.'}>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-gray-700">Allow Ludo Matches</p>
-          <button
-            onClick={async () => {
-              const newValue = !ludoEnabled;
-              const oldValue = ludoEnabled;
-              setLudoEnabled(newValue);
-              setSaving(true);
-              try {
-                await adminAPI.updateSettings({ ludoEnabled: newValue });
-                toast.success(`Ludo ${newValue ? 'enabled' : 'disabled'} successfully`);
-              } catch {
-                toast.error('Failed to update Ludo setting');
-                setLudoEnabled(oldValue);
-              }
-              finally { setSaving(false); }
-            }}
-            disabled={saving}
-            className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${ludoEnabled ? 'bg-emerald-600' : 'bg-gray-300'} ${saving ? 'opacity-50' : ''}`}
-          >
-            <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${ludoEnabled ? 'translate-x-8' : 'translate-x-1'}`} />
-          </button>
-        </div>
-        {!ludoEnabled && (
-          <div className="space-y-2 mb-4">
-            <label className="block text-sm font-medium text-gray-700">Reason shown to users</label>
-            <textarea
-              rows={2}
-              value={ludoDisableReason}
-              onChange={(e) => setLudoDisableReason(e.target.value)}
-              placeholder="e.g. Ludo matches are temporarily paused for maintenance"
-              className="w-full px-3 py-2 border rounded-lg text-sm"
-            />
-            <button
-              onClick={async () => {
-                setSaving(true);
-                try {
-                  await adminAPI.updateSettings({ ludoDisableReason });
-                  toast.success('Reason saved');
-                } catch { toast.error('Failed to save reason'); }
-                finally { setSaving(false); }
-              }}
-              disabled={saving}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
-            >
-              Save Reason
-            </button>
-          </div>
-        )}
-        <div className="border-t border-gray-200 pt-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ludo Warning (shown on Ludo page)</label>
-          <textarea
-            rows={2}
-            value={ludoWarning}
-            onChange={(e) => setLudoWarning(e.target.value)}
-            placeholder="Enter warning message (leave empty to hide)"
-            className="w-full px-3 py-2 border rounded-lg text-sm"
-          />
-          <button
-            onClick={async () => {
-              setSaving(true);
-              try {
-                await adminAPI.updateSettings({ ludoWarning });
-                toast.success('Ludo warning saved');
-              } catch { toast.error('Failed to save warning'); }
-              finally { setSaving(false); }
-            }}
-            disabled={saving}
-            className="mt-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
-          >
-            Save Warning
-          </button>
-        </div>
-      </Section>
 
       {/* Terms & Conditions */}
       <Section title="Terms & Conditions" desc="General T&C shown on the user-facing Terms page.">
@@ -743,7 +537,7 @@ const Settings = () => {
                   type="text"
                   value={notificationTitle}
                   onChange={(e) => setNotificationTitle(e.target.value)}
-                  placeholder="e.g., RushkroLudo (default if empty)"
+                  placeholder="e.g., 101Dream (default if empty)"
                   className="w-full px-3 py-2 border rounded-lg text-sm"
                 />
               </div>
@@ -753,7 +547,7 @@ const Settings = () => {
                   rows={4}
                   value={notificationMessage}
                   onChange={(e) => setNotificationMessage(e.target.value)}
-                  placeholder="e.g., Refer RushkroLudo & earn 2 free spins + commission on every friend's win. Share your code now!"
+                  placeholder="e.g., Refer 101Dream & earn 2 free spins on every friend's join. Share your code now!"
                   className="w-full px-3 py-2 border rounded-lg text-sm"
                 />
                 <p className="text-xs text-gray-400 mt-1">{notificationMessage.length}/500 characters</p>
@@ -764,7 +558,7 @@ const Settings = () => {
                   type="url"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
-                  placeholder="e.g., https://rushkroludo.com"
+                  placeholder="e.g., https://101dream.com"
                   className="w-full px-3 py-2 border rounded-lg text-sm"
                 />
                 <p className="text-xs text-gray-400 mt-1">Website URL users will go to when they tap notification</p>

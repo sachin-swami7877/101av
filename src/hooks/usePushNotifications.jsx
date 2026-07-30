@@ -33,7 +33,7 @@ export default function usePushNotifications(user) {
     const unsubscribe = onForegroundMessage((payload) => {
       const notif = payload.notification || {};
       const data = payload.data || {};
-      const title = notif.title || data.title || 'RushkroLudo';
+      const title = notif.title || data.title || '101Dream';
       const body = notif.body || data.body || '';
       const url = data.websiteUrl || data.link;
       const imageUrl = data.imageUrl || notif.image;

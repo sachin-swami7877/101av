@@ -50,7 +50,7 @@ api.interceptors.response.use(
 );
 
 // This frontend belongs to the 101dream site — sent with every login call so the
-// backend keeps 101dream users in their own account space (separate from rushkroludo)
+// backend keeps 101dream users in their own account space (separate from the ludo site)
 export const SITE_TYPE = '101dream';
 
 // Auth API

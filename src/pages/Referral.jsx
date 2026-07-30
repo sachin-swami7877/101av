@@ -64,7 +64,7 @@ const Referral = () => {
       <Header />
       <div className="max-w-md mx-auto px-4 pt-4 pb-28">
         <h1 className="text-xl font-bold text-gray-800 mb-1">Refer & Earn</h1>
-        <p className="text-sm text-gray-500 mb-4">Earn 3-4% commission when your referred friend wins a Ludo match</p>
+        <p className="text-sm text-gray-500 mb-4">Earn free spins when your friends join with your code</p>
 
         {loading ? (
           <div className="flex justify-center py-16">
@@ -91,7 +91,7 @@ const Referral = () => {
               <p className="text-primary-200 text-[10px] mt-2 mb-2">Share with friends. When they register & win, you earn!</p>
               {data?.referralCode && (
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`🎮 RushkroLudo pe khelo aur jeeto!\n\nMera referral code use karke register karo: *${data.referralCode}*\n\n👉 https://rushkroludo.com/login?referral_code=${data.referralCode}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`🎮 101Dream pe khelo aur jeeto!\n\nMera referral code use karke register karo: *${data.referralCode}*\n\n👉 ${window.location.origin}/login?referral_code=${data.referralCode}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 w-full bg-[#25D366] text-white py-2 rounded-lg text-xs font-semibold active:scale-95 transition-transform"
@@ -229,7 +229,7 @@ const Referral = () => {
               <p className="font-semibold mb-1">How it works</p>
               <ul className="space-y-1 text-xs list-disc list-inside">
                 <li>Friend registers using your code</li>
-                <li>Friend wins a Ludo match</li>
+                <li>Friend joins and plays</li>
                 <li>You earn <strong>3-4%</strong> of their entry fee as pending commission</li>
                 <li>Tap <strong>Redeem</strong> to add it to your play balance</li>
                 <li>Redeemed balance can be used to play </li>

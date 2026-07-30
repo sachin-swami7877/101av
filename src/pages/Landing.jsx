@@ -72,7 +72,7 @@ const PlaneSvg = ({ className = '' }) => (
   </svg>
 );
 
-/* ────────── RushkroLudo Logo SVG (Dice + Plane) ────────── */
+/* ────────── 101Dream Logo SVG (Dice + Plane) ────────── */
 const LogoSvg = ({ className = '' }) => (
   <svg className={className} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="8" width="24" height="24" rx="5" fill="white" opacity="0.95"/>
@@ -88,15 +88,6 @@ const LogoSvg = ({ className = '' }) => (
 
 /* ────────── Game data for showcase ────────── */
 const GAME_DATA = [
-  {
-    id: 'ludo',
-    title: 'Ludo King',
-    desc: 'Classic board game',
-    path: '/ludo',
-    gradient: 'from-green-500 to-emerald-600',
-    image: '/ludo.jpeg',
-    fallbackEmoji: '🎲',
-  },
   {
     id: 'aviator',
     title: 'Aviator',
@@ -210,7 +201,6 @@ const Landing = () => {
   }
 
   const features = [
-    { icon: '🎲', title: 'Ludo King', desc: 'Play classic Ludo with room codes. Create or join rooms, bet and compete with friends.' },
     { icon: '✈️', title: 'Aviator Game', desc: 'Watch the multiplier climb and cash out before it crashes. Fast rounds, big wins.' },
     { icon: '🎡', title: 'Lucky Spinner', desc: 'Spin the wheel of fortune and win instant prizes. Try your luck every day!' },
     { icon: '💰', title: 'Real Winnings', desc: 'Deposit via UPI, play your favorite game, and withdraw your earnings instantly.' },
@@ -221,17 +211,17 @@ const Landing = () => {
   const steps = [
     { num: '01', title: 'Create Account', desc: 'Sign up with your email in seconds. Quick OTP verification.' },
     { num: '02', title: 'Add Funds', desc: 'Deposit via UPI or QR code. Minimum ₹100 to get started.' },
-    { num: '03', title: 'Choose Your Game', desc: 'Pick from Ludo King, Aviator, or Lucky Spinner and start playing.' },
+    { num: '03', title: 'Choose Your Game', desc: 'Pick Aviator or Lucky Spinner and start playing.' },
     { num: '04', title: 'Win & Withdraw', desc: 'Win real cash and withdraw your winnings to UPI instantly!' },
   ];
 
   return (
     <div className="min-h-screen bg-[#07070d] text-white overflow-x-hidden relative">
       <Helmet>
-        <title>RushkroLudo – Play Ludo, Aviator & Win Real Cash | India's #1 Gaming Platform</title>
-        <meta name="description" content="RushkroLudo (Rush Kro Ludo) – Play Ludo King, Aviator crash game & Lucky Spinner. Win real cash with instant UPI withdrawals. Join now and start winning!" />
-        <meta name="keywords" content="RushkroLudo, rushkroludo, Rushkro Ludo, rushkro ludo, Rush Kro Ludo, rush kro ludo, RushKroLudo, Rush Ludo, rush ludo, RushLudo, rushludo, Rush Kro, rushkro, RushKro, Ludo Rush, ludo rush, LudoRush, ludorush, Rushkroludo game, rushkro ludo game, rush ludo game, Ludo King, Aviator game, Lucky Spinner, win real cash, online gaming, UPI withdrawal, crash game, ludo online, real money ludo, online ludo game India, rushkroludo kya hai, rushkroludo kaise khele, ludo paisa wala game, online ludo khelo, paisa kamao game, ludo khelo paise jeeto, aviator game kaise khele, real cash ludo app" />
-        <link rel="canonical" href="https://rushkroludo.com/" />
+        <title>101Dream – Play Aviator & Lucky Spinner, Win Real Cash</title>
+        <meta name="description" content="101Dream – Play Aviator crash game & Lucky Spinner. Win real cash with instant UPI withdrawals. Join now and start winning!" />
+        <meta name="keywords" content="101Dream, 101 dream, Aviator game, Lucky Spinner, crash game, win real cash, online gaming, UPI withdrawal, aviator game kaise khele, paisa kamao game" />
+        <link rel="canonical" href="https://101dream.com/" />
       </Helmet>
       {/* ═══ Background layers ═══ */}
       <div className="fixed inset-0 pointer-events-none">
@@ -245,13 +235,13 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
           <Link to="/landing" className="flex items-center gap-2 group">
             <div className="relative">
-              <img src="/logo.jpeg" alt="RushkroLudo" className="w-10 h-10 rounded-full" />
+              <img src="/logo.jpeg" alt="101Dream" className="w-10 h-10 rounded-full" />
               <span className="absolute top-0 right-0 flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-[#060b14]" />
               </span>
             </div>
-            <span className="text-xl font-extrabold tracking-tight">Rushkro<span className="text-red-500">Ludo</span></span>
+            <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
           </Link>
 
           {/* Desktop nav */}
@@ -296,16 +286,28 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6 pt-4">
         <div className="max-w-md mx-auto">
           <div className="grid grid-cols-2 gap-3 pt-4">
-            {/* Ludo Card */}
+            {/* Aviator Card */}
             <button
-              onClick={() => handleGameClick('/ludo')}
+              onClick={() => handleGameClick('/aviator')}
               className="relative w-full rounded-xl overflow-hidden shadow-md hover:shadow-xl active:scale-[0.98] transition-all"
             >
               <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
                 <span className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
                 <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
               </div>
-              <img src="/ludo-classic1.png" alt="Ludo Classic" className="w-full h-auto" />
+              <img src="/avi.jpeg" alt="Aviator" className="w-full h-auto" />
+            </button>
+
+            {/* Spinner Card */}
+            <button
+              onClick={() => handleGameClick('/spinner')}
+              className="relative w-full rounded-xl overflow-hidden shadow-md hover:shadow-xl active:scale-[0.98] transition-all"
+            >
+              <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
+                <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
+              </div>
+              <img src="/spinner.jpeg" alt="Lucky Spinner" className="w-full h-auto" />
             </button>
 
             {/* WhatsApp Support Card */}
@@ -317,7 +319,7 @@ const Landing = () => {
                 <span className="w-2 h-2 rounded-full bg-green-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
                 <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
               </div>
-              <img src="/ludosupport.png" alt="RushkroLudo Support" className="w-full h-auto" />
+              <img src="/ludosupport.png" alt="101Dream Support" className="w-full h-auto" />
             </button>
           </div>
         </div>
@@ -330,7 +332,7 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6">
         <div className="max-w-md mx-auto flex gap-3 justify-center">
           <a
-            href={`https://wa.me/?text=${encodeURIComponent('Play Ludo, Aviator & Lucky Spinner! Win real cash. Join now: ' + window.location.origin)}`}
+            href={`https://wa.me/?text=${encodeURIComponent('Play Aviator & Lucky Spinner on 101Dream! Win real cash. Join now: ' + window.location.origin)}`}
             rel="noopener noreferrer"
             className="flex-1 max-w-[200px] bg-[#25D366] text-white py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 text-sm hover:bg-[#20bd5a] transition-colors"
           >
@@ -357,14 +359,14 @@ const Landing = () => {
               LIVE — Players winning right now
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] mb-6">
-              Play Ludo, Aviator
+              Play Aviator
               <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
                 & Lucky Spinner.
               </span>
               Win Real Cash!
             </h1>
             <p className="text-white/60 text-base sm:text-lg lg:text-xl leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
-              Three exciting games on one platform. Play Ludo with friends, bet on the Aviator, or spin the lucky wheel — all with real money winnings.
+              Two exciting games on one platform. Bet on the Aviator or spin the lucky wheel — all with real money winnings.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <button
@@ -430,7 +432,7 @@ const Landing = () => {
           {[
             { val: landingPlayers, label: 'Players' },
             { val: landingWonToday, label: 'Won Today' },
-            { val: '3 Games', label: 'Ludo, Aviator, Spinner' },
+            { val: '2 Games', label: 'Aviator, Spinner' },
             { val: '24/7', label: 'Live Games' },
           ].map((s, i) => (
             <div key={i}>
@@ -445,7 +447,7 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black mb-3">Why Players Love <span className="text-red-500">RushkroLudo</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">Why Players Love <span className="text-red-500">101Dream</span></h2>
             <p className="text-white/50 max-w-2xl mx-auto">Three exciting games, real winnings, and the best gaming experience.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -494,26 +496,6 @@ const Landing = () => {
             <p className="text-white/50">Something for every player</p>
           </div>
           <div className="space-y-6">
-            {/* Ludo King */}
-            <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-[#12121f] to-[#0e0e1a] border border-white/5 p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-green-500/20">
-                  <span className="text-4xl sm:text-5xl">🎲</span>
-                </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h3 className="text-2xl font-black mb-2">Ludo King</h3>
-                  <p className="text-white/50 leading-relaxed mb-3">
-                    Play the classic Ludo board game with a modern twist! Create private rooms with room codes, invite your friends, and compete for real money stakes. Roll the dice, strategize your moves, and race your tokens to victory.
-                  </p>
-                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Room Codes</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Play with Friends</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Real Stakes</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Aviator */}
             <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-[#12121f] to-[#0e0e1a] border border-white/5 p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -566,7 +548,7 @@ const Landing = () => {
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3">Download the App</h2>
             <p className="text-white/50 mb-6 max-w-md mx-auto">
-              Install RushkroLudo on your phone for the best gaming experience. Quick access, faster loading, and play anytime!
+              Install 101Dream on your phone for the best gaming experience. Quick access, faster loading, and play anytime!
             </p>
             <button
               onClick={handleDownload}
@@ -586,7 +568,7 @@ const Landing = () => {
             Ready to <span className="bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">Play & Win?</span>
           </h2>
           <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">
-            Join thousands of players winning every day. Create your account, add funds, and choose from Ludo, Aviator, or Spinner!
+            Join thousands of players winning every day. Create your account, add funds, and choose Aviator or Spinner!
           </p>
           <button
             onClick={handlePlay}
@@ -609,7 +591,7 @@ const Landing = () => {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
                 <LogoSvg className="w-6 h-6" />
               </div>
-              <span className="font-extrabold">Rushkro<span className="text-red-500">Ludo</span></span>
+              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-sm text-white/40">
               <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">

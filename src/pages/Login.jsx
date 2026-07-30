@@ -28,7 +28,6 @@ const Particles = () => (
 /* ── Game icons for display ── */
 const GameIcons = () => (
   <div className="flex items-center gap-4 mb-4">
-    <div className="w-14 h-14 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center text-2xl">🎲</div>
     <div className="w-14 h-14 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center text-2xl">✈️</div>
     <div className="w-14 h-14 rounded-xl bg-amber-500/20 border border-amber-500/30 overflow-hidden flex items-center justify-center"><img src="/spinner.jpeg" alt="Spinner" className="w-full h-full object-cover" /></div>
   </div>
@@ -301,15 +300,11 @@ const Login = () => {
             </span>
           </h2>
           <p className="text-white/50 text-lg leading-relaxed max-w-md mb-8">
-            Play Ludo, Aviator crash game & Lucky Spinner. Win real money with instant UPI withdrawals.
+            Play the Aviator crash game & Lucky Spinner. Win real money with instant UPI withdrawals.
           </p>
 
           {/* Game highlights */}
           <div className="mb-8 space-y-3 max-w-sm">
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center gap-3">
-              <span className="text-2xl">🎲</span>
-              <div><p className="text-white font-semibold text-sm">Ludo King</p><p className="text-white/40 text-xs">Bet & play with real players</p></div>
-            </div>
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center gap-3">
               <span className="text-2xl">✈️</span>
               <div><p className="text-white font-semibold text-sm">Aviator</p><p className="text-white/40 text-xs">Watch the multiplier fly & cash out</p></div>
@@ -323,7 +318,7 @@ const Login = () => {
           {/* Trust indicators */}
           <div className="grid grid-cols-3 gap-4 max-w-sm">
             {[
-              { icon: '🎮', val: '3 Games', label: 'To Play' },
+              { icon: '🎮', val: '2 Games', label: 'To Play' },
               { icon: '🔒', val: '100%', label: 'Secure' },
               { icon: '💰', val: 'Instant', label: 'Payouts' },
             ].map((t, i) => (
@@ -346,7 +341,7 @@ const Login = () => {
             </div>
           </div>
           <p className="text-white/50 text-sm leading-relaxed italic">
-            "Amazing platform! Won in Ludo and cashed out at 8.5x in Aviator. Withdrawal was instant to my UPI!"
+            "Amazing platform! Cashed out at 8.5x in Aviator. Withdrawal was instant to my UPI!"
           </p>
         </div>
       </div>
@@ -359,9 +354,9 @@ const Login = () => {
           <Particles />
           <div className="relative z-10 flex flex-col items-center pt-8 pb-6 px-4">
             <Link to="/landing" className="mb-4">
-              <img src="/logo.jpeg" alt="RushkroLudo" className="w-16 h-16" />
+              <img src="/logo.jpeg" alt="101Dream" className="w-16 h-16" />
             </Link>
-            <p className="text-white/40 text-sm">Ludo, Aviator & Spinner — Win Real Cash!</p>
+            <p className="text-white/40 text-sm">Aviator & Spinner — Win Real Cash!</p>
           </div>
         </div>
 
@@ -660,7 +655,7 @@ const Login = () => {
             <div className="lg:hidden mt-8 pt-6 border-t border-white/5">
               <div className="grid grid-cols-3 gap-3 text-center">
                 {[
-                  { icon: '🎮', val: '3 Games', label: 'To Play' },
+                  { icon: '🎮', val: '2 Games', label: 'To Play' },
                   { icon: '🔒', val: 'Secure', label: 'Platform' },
                   { icon: '💰', val: 'Instant', label: 'Payouts' },
                 ].map((t, i) => (
