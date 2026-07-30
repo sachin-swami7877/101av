@@ -319,7 +319,7 @@ const Landing = () => {
                 <span className="w-2 h-2 rounded-full bg-green-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
                 <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
               </div>
-              <img src="/ludosupport.png" alt="101Dream Support" className="w-full h-auto" />
+              <img src="/support-101dream.svg" alt="101Dream Support" className="w-full h-auto" />
             </button>
           </div>
         </div>

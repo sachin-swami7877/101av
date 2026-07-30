@@ -4,21 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { HiOutlineBars3 } from 'react-icons/hi2';
 import SideDrawer from './SideDrawer';
-import { settingsAPI } from '../services/api';
 
 const Header = () => {
   const { user, isAdmin, isSubAdmin, totalCommission } = useAuth();
   const { connected, activeUserCount, unreadNotifCount } = useSocket();
   const unreadCount = unreadNotifCount || 0;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [appLogoUrl, setAppLogoUrl] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    settingsAPI.getLogo().then(res => {
-      if (res.data?.logoUrl) setAppLogoUrl(res.data.logoUrl);
-    }).catch(() => {});
-  }, []);
 
   return (
     <>
@@ -35,7 +27,7 @@ const Header = () => {
             )}
             <Link to="/landing" className="flex items-center">
               <div className="relative">
-                <img src={appLogoUrl || '/logo-101dream.svg'} alt="101Dream" className="w-9 h-9 rounded-full ring-2 ring-violet-500/40 object-cover" />
+                <img src={'/logo-101dream.svg'} alt="101Dream" className="w-9 h-9 rounded-full ring-2 ring-violet-500/40 object-cover" />
                 <span className="absolute top-0 right-0 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-[#0d0d12]" />

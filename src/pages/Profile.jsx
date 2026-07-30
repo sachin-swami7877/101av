@@ -25,9 +25,6 @@ const Profile = () => {
   const [support, setSupport] = useState({ supportPhone: null, supportWhatsApp: null });
   const whatsAppNumber = support.supportWhatsApp || support.supportPhone;
   const [showInstallTip, setShowInstallTip] = useState(false);
-  const [aviatorComingSoon, setAviatorComingSoon] = useState(false);
-  const [spinnerComingSoon, setSpinnerComingSoon] = useState(false);
-  const [gameStatusLoaded, setGameStatusLoaded] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '', upiId: '', upiNumber: '', bankAccountNumber: '', bankIfscCode: '', bankAccountHolder: '' });
   const [paymentTab, setPaymentTab] = useState('upi'); // 'upi' | 'bank'
@@ -48,10 +45,6 @@ const Profile = () => {
     fetchSupport();
     fetchBalanceDetails();
     fetchKycStatus();
-    settingsAPI.getAviatorStatus().then(res => {
-      if (res.data?.aviatorComingSoon) setAviatorComingSoon(true);
-      if (res.data?.spinnerComingSoon) setSpinnerComingSoon(true);
-    }).catch(() => {}).finally(() => setGameStatusLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -281,7 +274,7 @@ const Profile = () => {
       subtitle: 'Contact support',
       path: null,
       gradient: 'from-green-500 to-emerald-600',
-      image: '/ludosupport.png',
+      image: '/support-101dream.svg',
       isExternal: true,
     },
   ];
@@ -317,17 +310,8 @@ const Profile = () => {
         {/* Games - Show First */}
         <div className="mb-6">
           <h3 className="font-bold text-gray-800 mb-3">Games</h3>
-          {!gameStatusLoaded ? (
-            <div className="flex justify-center py-8">
-              <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
           <div className="grid grid-cols-2 gap-4">
-            {gameCards.filter((g) => {
-              if (g.id === 'aviator' && aviatorComingSoon) return false;
-              if (g.id === 'lucky-draw' && spinnerComingSoon) return false;
-              return true;
-            }).map((game) => (
+            {gameCards.map((game) => (
               <button
                 key={game.id}
                 onClick={() => {
@@ -372,7 +356,6 @@ const Profile = () => {
               </button>
             ))}
           </div>
-          )}
         </div>
 
         {/* Balance Card */}

@@ -160,7 +160,6 @@ export const settingsAPI = {
   getLayout: () => api.get('/settings/layout'),
   getUserWarning: () => api.get('/settings/user-warning'),
   getLandingStats: () => api.get('/settings/landing-stats'),
-  getAviatorStatus: () => api.get('/settings/aviator-status'),
   getLogo: () => api.get('/settings/logo'),
 };
 

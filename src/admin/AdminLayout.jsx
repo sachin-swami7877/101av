@@ -11,7 +11,7 @@ import { HiOutlineBars3 } from 'react-icons/hi2';
 import AdminSideDrawer from './AdminSideDrawer';
 import toast from 'react-hot-toast';
 import { playNotificationSound } from '../utils/audioSounds';
-import { adminAPI, settingsAPI } from '../services/api';
+import { adminAPI } from '../services/api';
 
 // localStorage keys for "last viewed" timestamps
 const LS_MONEY   = 'adminViewedMoneyAt';
@@ -29,7 +29,6 @@ const AdminLayout = () => {
   const [unreadKyc, setUnreadKyc]       = useState(0);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [appLogoUrl, setAppLogoUrl] = useState(null);
 
   // All available menu items
   const allSidebarItems = [
@@ -67,13 +66,6 @@ const AdminLayout = () => {
   const mobileNavItems = isManager
     ? allMobileNavItems.filter(item => item.subAdmin)
     : allMobileNavItems;
-
-  // Fetch dynamic logo
-  useEffect(() => {
-    settingsAPI.getLogo().then(res => {
-      if (res.data?.logoUrl) setAppLogoUrl(res.data.logoUrl);
-    }).catch(() => {});
-  }, []);
 
   // Single fetch on mount — passes all 4 timestamps, backend returns per-badge unread counts
   useEffect(() => {
@@ -151,7 +143,7 @@ const AdminLayout = () => {
       <header className="bg-primary-800 text-white px-3 md:px-6 py-2.5 sticky top-0 z-50">
         <div className="flex justify-between items-center h-12">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <img src={appLogoUrl || '/logo-101dream.svg'} alt="Logo" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 ring-2 ring-white/20" />
+            <img src={'/logo-101dream.svg'} alt="Logo" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 ring-2 ring-white/20" />
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold leading-tight">101<span className="text-emerald-300">Dream</span></h1>
               {!isManager && (

@@ -40,10 +40,6 @@ const Home = () => {
   const [userWarning, setUserWarning] = useState('');
   const [supportWhatsApp, setSupportWhatsApp] = useState('');
   const [showInstallTip, setShowInstallTip] = useState(false);
-  const [aviatorComingSoon, setAviatorComingSoon] = useState(false);
-  const [spinnerComingSoon, setSpinnerComingSoon] = useState(false);
-  const [gameStatusLoaded, setGameStatusLoaded] = useState(false);
-  const [appLogoUrl, setAppLogoUrl] = useState(null);
 
   const handleDownload = () => {
     if (window.deferredPrompt) {
@@ -61,13 +57,6 @@ const Home = () => {
     }).catch(() => {});
     settingsAPI.getSupport().then(res => {
       if (res.data?.supportWhatsApp) setSupportWhatsApp(res.data.supportWhatsApp);
-    }).catch(() => {});
-    settingsAPI.getAviatorStatus().then(res => {
-      if (res.data?.aviatorComingSoon) setAviatorComingSoon(true);
-      if (res.data?.spinnerComingSoon) setSpinnerComingSoon(true);
-    }).catch(() => {}).finally(() => setGameStatusLoaded(true));
-    settingsAPI.getLogo().then(res => {
-      if (res.data?.logoUrl) setAppLogoUrl(res.data.logoUrl);
     }).catch(() => {});
   }, []);
 
@@ -109,7 +98,7 @@ const Home = () => {
       // Use a light bg matching the support image so there's no dark flash before the image paints
       gradient: 'from-emerald-100 to-emerald-200',
       isExternal: true,
-      image: '/ludosupport.png',
+      image: '/support-101dream.svg',
     },
   ];
 
@@ -136,19 +125,10 @@ const Home = () => {
           </div>
         )}
 
-        {/* Games — wait for status API, then filter hidden games */}
+        {/* Games */}
         <div className="mb-4">
-          {!gameStatusLoaded ? (
-            <div className="flex justify-center py-8">
-              <div className="w-8 h-8 border-3 border-violet-400 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
           <div className="grid grid-cols-2 gap-3 pt-3">
-            {gameCards.filter((g) => {
-              if (g.id === 'aviator' && aviatorComingSoon) return false;
-              if (g.id === 'lucky-draw' && spinnerComingSoon) return false;
-              return true;
-            }).map((game) => (
+            {gameCards.map((game) => (
               <div key={game.id} className="flex flex-col">
                 {/* LIVE badge — above the box, outside */}
                 <div className="flex items-center gap-1 bg-black/70 rounded-full px-2 py-0.5 self-start mb-1 ml-1">
@@ -194,7 +174,6 @@ const Home = () => {
               </div>
             ))}
           </div>
-          )}
         </div>
 
         {/* Ad Banner */}
@@ -226,7 +205,7 @@ const Home = () => {
           <div className="fixed bottom-20 left-3 right-3 max-w-md mx-auto z-40 bg-white rounded-xl p-3 shadow-lg flex items-center justify-between" style={{ animation: 'floatUpDown 2s ease-in-out infinite' }}>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <img src={appLogoUrl || '/logo-101dream.svg'} alt="101Dream" className="w-10 h-10 rounded-full" />
+                <img src={'/logo-101dream.svg'} alt="101Dream" className="w-10 h-10 rounded-full" />
                 <span className="absolute top-0 right-0 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white" />

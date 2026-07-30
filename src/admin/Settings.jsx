@@ -34,8 +34,6 @@ const Settings = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [qrFile, setQrFile] = useState(null);
   const [qrUploading, setQrUploading] = useState(false);
-  const [aviatorComingSoon, setAviatorComingSoon] = useState(false);
-  const [spinnerComingSoon, setSpinnerComingSoon] = useState(false);
   const [notificationTitle, setNotificationTitle] = useState('101Dream');
   const [notificationMessage, setNotificationMessage] = useState('Refer 101Dream & earn 2 free spins on every friend\'s join. Share your code now!');
   const [websiteUrl, setWebsiteUrl] = useState('https://101dream.com');
@@ -73,8 +71,6 @@ const Settings = () => {
       setWithdrawalDisableReason(d.withdrawalDisableReason || '');
       setLogoUrl(d.logoUrl || null);
       setQrCodeUrl(d.qrCodeUrl || null);
-      setAviatorComingSoon(d.aviatorComingSoon ?? false);
-      setSpinnerComingSoon(d.spinnerComingSoon ?? false);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to load settings' });
     } finally { setLoading(false); }
@@ -439,48 +435,6 @@ const Settings = () => {
               </div>
             </div>
             <button onClick={handleSaveBonus} disabled={saving} className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50">Save Bonus Settings</button>
-          </Section>
-
-          <Section title="Aviator — Coming Soon" desc={aviatorComingSoon ? 'Aviator is HIDDEN from users (Dashboard, Profile, Landing). Direct URL shows "Coming Soon".' : 'Aviator is live and visible to all users.'}>
-            <button
-              onClick={async () => {
-                const newValue = !aviatorComingSoon;
-                setAviatorComingSoon(newValue);
-                setSaving(true);
-                try {
-                  await adminAPI.updateSettings({ aviatorComingSoon: newValue });
-                  toast.success(`Aviator ${newValue ? 'hidden from users' : 'is now live'}`);
-                } catch (error) {
-                  setAviatorComingSoon(!newValue);
-                  toast.error('Failed to update');
-                } finally { setSaving(false); }
-              }}
-              disabled={saving}
-              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${aviatorComingSoon ? 'bg-amber-500' : 'bg-emerald-600'} ${saving ? 'opacity-50' : ''}`}
-            >
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${aviatorComingSoon ? 'translate-x-8' : 'translate-x-1'}`} />
-            </button>
-          </Section>
-
-          <Section title="Spinner — Coming Soon" desc={spinnerComingSoon ? 'Spinner is HIDDEN from users (Dashboard, Profile, Landing). Direct URL shows "Coming Soon".' : 'Spinner is live and visible to all users.'}>
-            <button
-              onClick={async () => {
-                const newValue = !spinnerComingSoon;
-                setSpinnerComingSoon(newValue);
-                setSaving(true);
-                try {
-                  await adminAPI.updateSettings({ spinnerComingSoon: newValue });
-                  toast.success(`Spinner ${newValue ? 'hidden from users' : 'is now live'}`);
-                } catch (error) {
-                  setSpinnerComingSoon(!newValue);
-                  toast.error('Failed to update');
-                } finally { setSaving(false); }
-              }}
-              disabled={saving}
-              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${spinnerComingSoon ? 'bg-amber-500' : 'bg-emerald-600'} ${saving ? 'opacity-50' : ''}`}
-            >
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${spinnerComingSoon ? 'translate-x-8' : 'translate-x-1'}`} />
-            </button>
           </Section>
 
           <Section title="Send Notification" desc="Send push notifications to all users with optional image.">
