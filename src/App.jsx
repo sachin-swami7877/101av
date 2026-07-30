@@ -50,7 +50,7 @@ import AdminProfit from './admin/AdminProfit';
 import AdminDatabase from './admin/AdminDatabase';
 import AdminKyc from './admin/AdminKyc';
 import AdminCreditLog from './admin/AdminCreditLog';
-import AdminReferral from './admin/AdminReferral';
+// import AdminReferral from './admin/AdminReferral'; // referrals page disabled for 101dream
 
 // Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -289,7 +289,7 @@ function AppRoutes() {
         <Route path="kyc" element={<SubAdminBlock><AdminKyc /></SubAdminBlock>} />
         <Route path="database" element={<SubAdminBlock><AdminDatabase /></SubAdminBlock>} />
         <Route path="credit-log" element={<SubAdminBlock><AdminCreditLog /></SubAdminBlock>} />
-        <Route path="referrals" element={<SubAdminBlock><AdminReferral /></SubAdminBlock>} />
+        {/* <Route path="referrals" element={<SubAdminBlock><AdminReferral /></SubAdminBlock>} /> */}
         <Route path="notifications" element={<AdminNotifications />} />
         <Route path="settings" element={
           <SubAdminBlock>

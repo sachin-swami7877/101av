@@ -23,7 +23,7 @@ const AdminSideDrawer = ({ open, onClose }) => {
     { to: '/admin/kyc', label: 'KYC', icon: HiOutlineIdentification, subAdmin: false },
     { to: '/admin/database', label: 'Database', icon: IoServerOutline, subAdmin: false },
     ...(isSuperAdmin ? [{ to: '/admin/credit-log', label: 'Credit Log', icon: IoReceiptOutline, subAdmin: false }] : []),
-    { to: '/admin/referrals', label: 'Referrals', icon: HiOutlineUserGroup, subAdmin: false },
+    // Referrals page disabled for 101dream
     { to: '/admin/settings', label: 'Settings', icon: HiOutlineCog6Tooth, subAdmin: false },
     { to: '/admin/profile', label: 'Your Profile', icon: HiOutlineUser, subAdmin: true },
   ];

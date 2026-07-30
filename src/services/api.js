@@ -155,12 +155,12 @@ export const bonusAPI = {
 
 // Public settings API (no auth)
 export const settingsAPI = {
-  getSupport: () => api.get('/settings/support'),
-  getTerms: () => api.get('/settings/terms'),
-  getLayout: () => api.get('/settings/layout'),
-  getUserWarning: () => api.get('/settings/user-warning'),
-  getLandingStats: () => api.get('/settings/landing-stats'),
-  getLogo: () => api.get('/settings/logo'),
+  getSupport: () => api.get('/settings/support', { params: { type: SITE_TYPE } }),
+  getTerms: () => api.get('/settings/terms', { params: { type: SITE_TYPE } }),
+  getLayout: () => api.get('/settings/layout', { params: { type: SITE_TYPE } }),
+  getUserWarning: () => api.get('/settings/user-warning', { params: { type: SITE_TYPE } }),
+  getLandingStats: () => api.get('/settings/landing-stats', { params: { type: SITE_TYPE } }),
+  getLogo: () => api.get('/settings/logo', { params: { type: SITE_TYPE } }),
 };
 
 // Admin API
@@ -200,10 +200,10 @@ export const adminAPI = {
   getWinningBets: (params) => api.get('/admin/wins-bets', { params }),
   getNotifications: () => api.get('/admin/notifications'),
   getSpinnerRecords: (params) => api.get('/admin/spinner-records', { params }),
-  getSettings: () => api.get('/admin/settings'),
-  updateSettings: (data) => api.put('/admin/settings', data),
-  uploadQrCode: (formData) => api.post('/admin/settings/qr', formData),
-  uploadLogo: (formData) => api.post('/admin/settings/logo', formData),
+  getSettings: () => api.get('/admin/settings', { params: { siteType: SITE_TYPE } }),
+  updateSettings: (data) => api.put('/admin/settings', { ...data, siteType: SITE_TYPE }),
+  uploadQrCode: (formData) => api.post(`/admin/settings/qr?siteType=${SITE_TYPE}`, formData),
+  uploadLogo: (formData) => api.post(`/admin/settings/logo?siteType=${SITE_TYPE}`, formData),
   getBonusRecords: (params) => api.get('/admin/bonus-records', { params }),
   getUserTransactions: (id, params) => api.get(`/admin/users/${id}/transactions`, { params }),
   // Profit
@@ -213,7 +213,7 @@ export const adminAPI = {
   cleanupPhotos: (data) => api.post('/admin/cleanup/photos', data),
   // Export
   exportUsers: () => api.get('/admin/export/users'),
-  getCreditLog: (params) => api.get('/admin/credit-log', { params }),
+  getCreditLog: (params) => api.get('/admin/credit-log', { params: { ...params, siteType: SITE_TYPE } }),
   // KYC
   getKycRequests: (params) => api.get('/admin/kyc', { params }),
   approveKyc: (id) => api.put(`/admin/kyc/${id}/approve`),
