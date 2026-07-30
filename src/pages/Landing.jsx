@@ -1,0 +1,1052 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { settingsAPI } from '../services/api';
+
+// Single layout fetch (avoids duplicate calls from React Strict Mode / remounts)
+let layoutFetchPromise = null;
+const fetchLayoutOnce = () => {
+  if (!layoutFetchPromise) layoutFetchPromise = settingsAPI.getLayout();
+  return layoutFetchPromise;
+};
+
+/* ────────── Animated multiplier counter ────────── */
+const LiveMultiplier = () => {
+  const [val, setVal] = useState(1.0);
+  const [crashed, setCrashed] = useState(false);
+  const frameRef = useRef(null);
+
+  useEffect(() => {
+    let start = Date.now();
+    const crashAt = 2.5 + Math.random() * 5;
+    const tick = () => {
+      const elapsed = (Date.now() - start) / 1000;
+      const next = Math.pow(Math.E, 0.12 * elapsed);
+      if (next >= crashAt) {
+        setVal(Number(crashAt.toFixed(2)));
+        setCrashed(true);
+        setTimeout(() => { setCrashed(false); setVal(1.0); start = Date.now(); frameRef.current = requestAnimationFrame(tick); }, 2000);
+        return;
+      }
+      setVal(Number(next.toFixed(2)));
+      frameRef.current = requestAnimationFrame(tick);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, []);
+
+  return (
+    <div className={`font-black tabular-nums transition-colors duration-200 ${crashed ? 'text-red-500' : 'text-emerald-400'}`}>
+      <span className="text-5xl sm:text-7xl lg:text-8xl">{val.toFixed(2)}</span>
+      <span className="text-3xl sm:text-5xl lg:text-6xl ml-1">x</span>
+    </div>
+  );
+};
+
+/* ────────── Floating particles ────────── */
+const Particles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {Array.from({ length: 20 }).map((_, i) => (
+      <div
+        key={i}
+        className="absolute rounded-full bg-white/10"
+        style={{
+          width: 2 + Math.random() * 4,
+          height: 2 + Math.random() * 4,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animation: `floatParticle ${6 + Math.random() * 10}s ease-in-out infinite`,
+          animationDelay: `${Math.random() * 6}s`,
+        }}
+      />
+    ))}
+  </div>
+);
+
+/* ────────── Plane SVG ────────── */
+const PlaneSvg = ({ className = '' }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M58 12L6 30l16 4 4 18 10-12 14 4z" fill="currentColor" opacity="0.9" />
+    <path d="M58 12L22 34m0 0l4 18m-4-18L6 30" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+  </svg>
+);
+
+/* ────────── RushkroLudo Logo SVG (Dice + Plane) ────────── */
+const LogoSvg = ({ className = '' }) => (
+  <svg className={className} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="8" width="24" height="24" rx="5" fill="white" opacity="0.95"/>
+    <circle cx="9" cy="15" r="2.5" fill="#ef4444"/>
+    <circle cx="19" cy="15" r="2.5" fill="#ef4444"/>
+    <circle cx="14" cy="20" r="2.5" fill="#ef4444"/>
+    <circle cx="9" cy="25" r="2.5" fill="#ef4444"/>
+    <circle cx="19" cy="25" r="2.5" fill="#ef4444"/>
+    <path d="M30 4l8 5-14 9 6-14z" fill="white" opacity="0.85"/>
+    <path d="M30 4l2 1" stroke="white" strokeWidth="1" opacity="0.5"/>
+  </svg>
+);
+
+/* ────────── Game data for showcase ────────── */
+const GAME_DATA = [
+  {
+    id: 'ludo',
+    title: 'Ludo King',
+    desc: 'Classic board game',
+    path: '/ludo',
+    gradient: 'from-green-500 to-emerald-600',
+    image: '/ludo.jpeg',
+    fallbackEmoji: '🎲',
+  },
+  {
+    id: 'aviator',
+    title: 'Aviator',
+    desc: 'Crash & cash out',
+    path: '/aviator',
+    gradient: 'from-red-500 to-orange-600',
+    image: '/avi.jpeg',
+    fallbackEmoji: '✈️',
+  },
+  {
+    id: 'spinner',
+    title: 'Lucky Spinner',
+    desc: 'Spin & win big',
+    path: '/spinner',
+    gradient: 'from-amber-500 to-orange-600',
+    image: '/spinner.jpeg',
+    fallbackEmoji: '🎡',
+  },
+];
+
+
+const Landing = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [layoutEnabled, setLayoutEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [whatsAppNumber, setWhatsAppNumber] = useState('');
+  const [supportPhone, setSupportPhone] = useState('');
+  const [landingPlayers, setLandingPlayers] = useState('1000+');
+  const [landingWonToday, setLandingWonToday] = useState('₹1K+');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchLayoutOnce()
+      .then((res) => {
+        if (!cancelled) setLayoutEnabled(res.data.layout || false);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to fetch layout setting:', err);
+          setLayoutEnabled(false);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    // Fetch support numbers
+    settingsAPI.getSupport()
+      .then((res) => {
+        if (!cancelled) {
+          setWhatsAppNumber(res.data?.supportWhatsApp || res.data?.supportPhone || '');
+          setSupportPhone(res.data?.supportPhone || res.data?.supportWhatsApp || '');
+        }
+      })
+      .catch(() => {});
+
+    // Fetch landing page stats
+    settingsAPI.getLandingStats()
+      .then((res) => {
+        if (!cancelled) {
+          setLandingPlayers(res.data?.landingPlayers || '1000+');
+          setLandingWonToday(res.data?.landingWonToday || '₹1K+');
+        }
+      })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
+  }, []);
+
+  const handlePlay = () => {
+    navigate(isAuthenticated ? '/dashboard' : '/login', { state: { from: '/dashboard' } });
+  };
+
+  const handleGameClick = (path) => {
+    if (isAuthenticated) {
+      navigate(path);
+    } else {
+      navigate('/login', { state: { from: path } });
+    }
+  };
+
+  const [showInstallTip, setShowInstallTip] = useState(false);
+
+  const handleDownload = () => {
+    if (window.deferredPrompt) {
+      window.deferredPrompt.prompt();
+      window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
+    } else {
+      // iOS or already installed — show a small tip toast instead of ugly alert
+      setShowInstallTip(true);
+      setTimeout(() => setShowInstallTip(false), 5000);
+    }
+  };
+
+  // Show motivational layout if enabled
+  if (!loading && layoutEnabled) {
+    return <MotivationalLanding handlePlay={handlePlay} isAuthenticated={isAuthenticated} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#07070d] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const features = [
+    { icon: '🎲', title: 'Ludo King', desc: 'Play classic Ludo with room codes. Create or join rooms, bet and compete with friends.' },
+    { icon: '✈️', title: 'Aviator Game', desc: 'Watch the multiplier climb and cash out before it crashes. Fast rounds, big wins.' },
+    { icon: '🎡', title: 'Lucky Spinner', desc: 'Spin the wheel of fortune and win instant prizes. Try your luck every day!' },
+    { icon: '💰', title: 'Real Winnings', desc: 'Deposit via UPI, play your favorite game, and withdraw your earnings instantly.' },
+    { icon: '🔒', title: 'Secure & Fair', desc: 'Transparent system with provable outcomes. Your funds are always safe.' },
+    { icon: '📱', title: 'Play Anywhere', desc: 'Optimized for mobile and desktop. Play on the go, anytime, anywhere.' },
+  ];
+
+  const steps = [
+    { num: '01', title: 'Create Account', desc: 'Sign up with your email in seconds. Quick OTP verification.' },
+    { num: '02', title: 'Add Funds', desc: 'Deposit via UPI or QR code. Minimum ₹100 to get started.' },
+    { num: '03', title: 'Choose Your Game', desc: 'Pick from Ludo King, Aviator, or Lucky Spinner and start playing.' },
+    { num: '04', title: 'Win & Withdraw', desc: 'Win real cash and withdraw your winnings to UPI instantly!' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#07070d] text-white overflow-x-hidden relative">
+      <Helmet>
+        <title>RushkroLudo – Play Ludo, Aviator & Win Real Cash | India's #1 Gaming Platform</title>
+        <meta name="description" content="RushkroLudo (Rush Kro Ludo) – Play Ludo King, Aviator crash game & Lucky Spinner. Win real cash with instant UPI withdrawals. Join now and start winning!" />
+        <meta name="keywords" content="RushkroLudo, rushkroludo, Rushkro Ludo, rushkro ludo, Rush Kro Ludo, rush kro ludo, RushKroLudo, Rush Ludo, rush ludo, RushLudo, rushludo, Rush Kro, rushkro, RushKro, Ludo Rush, ludo rush, LudoRush, ludorush, Rushkroludo game, rushkro ludo game, rush ludo game, Ludo King, Aviator game, Lucky Spinner, win real cash, online gaming, UPI withdrawal, crash game, ludo online, real money ludo, online ludo game India, rushkroludo kya hai, rushkroludo kaise khele, ludo paisa wala game, online ludo khelo, paisa kamao game, ludo khelo paise jeeto, aviator game kaise khele, real cash ludo app" />
+        <link rel="canonical" href="https://rushkroludo.com/" />
+      </Helmet>
+      {/* ═══ Background layers ═══ */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(220,38,38,0.15),transparent)]" />
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#07070d] via-transparent to-transparent" />
+        <Particles />
+      </div>
+
+      {/* ═══ Navbar ═══ */}
+      <header className="relative z-30 border-b border-white/5">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
+          <Link to="/landing" className="flex items-center gap-2 group">
+            <div className="relative">
+              <img src="/logo.jpeg" alt="RushkroLudo" className="w-10 h-10 rounded-full" />
+              <span className="absolute top-0 right-0 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-[#060b14]" />
+              </span>
+            </div>
+            <span className="text-xl font-extrabold tracking-tight">Rushkro<span className="text-red-500">Ludo</span></span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden sm:flex items-center gap-6">
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Play</Link>
+                <Link to="/wallet" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Wallet</Link>
+                <Link to="/profile" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Profile</Link>
+              </>
+            ) : (
+              <Link to="/login" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Login</Link>
+            )}
+            <button onClick={handlePlay} className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all shadow-lg shadow-red-600/20 hover:shadow-red-500/30">
+              Play Now
+            </button>
+          </nav>
+
+          {/* Mobile: Login button or Play button */}
+          <div className="sm:hidden">
+            {isAuthenticated ? (
+              <Link to="/dashboard" className="px-5 py-2 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 text-white">
+                Play
+              </Link>
+            ) : (
+              <Link to="/login" className="px-5 py-2 rounded-lg text-sm font-bold border-2 border-white text-white hover:bg-white hover:text-black transition-colors">
+                LOGIN
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* ═══ Ad Carousel ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 pt-6">
+        <div className="max-w-md mx-auto rounded-xl overflow-hidden shadow-lg">
+          <img src="/slider1.png" alt="Withdrawals Within 2 Minutes" className="w-full h-auto" />
+        </div>
+      </section>
+
+      {/* ═══ Game Cards — addaking style ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 pt-4">
+        <div className="max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-3 pt-4">
+            {/* Ludo Card */}
+            <button
+              onClick={() => handleGameClick('/ludo')}
+              className="relative w-full rounded-xl overflow-hidden shadow-md hover:shadow-xl active:scale-[0.98] transition-all"
+            >
+              <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
+                <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
+              </div>
+              <img src="/ludo-classic1.png" alt="Ludo Classic" className="w-full h-auto" />
+            </button>
+
+            {/* WhatsApp Support Card */}
+            <button
+              onClick={() => whatsAppNumber && window.open(`https://wa.me/${whatsAppNumber.replace(/[^0-9]/g, '')}`, '_blank')}
+              className="relative w-full rounded-xl overflow-hidden shadow-md hover:shadow-xl active:scale-[0.98] transition-all"
+            >
+              <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="w-2 h-2 rounded-full bg-green-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
+                <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
+              </div>
+              <img src="/ludosupport.png" alt="RushkroLudo Support" className="w-full h-auto" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Spacer ═══ */}
+      <div className="h-4" />
+
+      {/* Share & Copy buttons */}
+      <section className="relative z-10 px-4 sm:px-6">
+        <div className="max-w-md mx-auto flex gap-3 justify-center">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent('Play Ludo, Aviator & Lucky Spinner! Win real cash. Join now: ' + window.location.origin)}`}
+            rel="noopener noreferrer"
+            className="flex-1 max-w-[200px] bg-[#25D366] text-white py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 text-sm hover:bg-[#20bd5a] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Share
+          </a>
+          <button
+            onClick={() => { navigator.clipboard.writeText(window.location.origin); alert('Link copied!'); }}
+            className="flex-1 max-w-[200px] bg-white/10 text-white py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 text-sm border border-white/10 hover:bg-white/20 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            Copy Link
+          </button>
+        </div>
+      </section>
+
+      {/* ═══ HERO ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-16 pb-12 sm:pb-20">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          {/* Left text */}
+          <div className="flex-1 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold mb-6">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              LIVE — Players winning right now
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] mb-6">
+              Play Ludo, Aviator
+              <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
+                & Lucky Spinner.
+              </span>
+              Win Real Cash!
+            </h1>
+            <p className="text-white/60 text-base sm:text-lg lg:text-xl leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
+              Three exciting games on one platform. Play Ludo with friends, bet on the Aviator, or spin the lucky wheel — all with real money winnings.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <button
+                onClick={handlePlay}
+                className="group relative px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-red-600 to-red-500 text-white shadow-2xl shadow-red-600/30 hover:shadow-red-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Play Now
+                  <svg className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </button>
+              <button
+                onClick={handleDownload}
+                className="px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-600/20 hover:shadow-green-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download App
+              </button>
+              <button
+                onClick={() => document.getElementById('how-to-play')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 rounded-xl font-bold text-lg border border-white/15 text-white/80 hover:bg-white/5 hover:text-white transition-all"
+              >
+                How to Play
+              </button>
+            </div>
+          </div>
+
+          {/* Right — live multiplier demo */}
+          <div className="flex-shrink-0 relative">
+            <div className="absolute inset-0 -m-10 bg-gradient-to-br from-red-600/20 via-orange-500/10 to-transparent rounded-full blur-3xl" />
+            <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl bg-gradient-to-br from-[#12121f] to-[#0a0a14] border border-white/10 shadow-2xl flex flex-col items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 opacity-5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={`h${i}`} className="absolute w-full h-px bg-white" style={{ top: `${(i + 1) * 12.5}%` }} />
+                ))}
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={`v${i}`} className="absolute h-full w-px bg-white" style={{ left: `${(i + 1) * 12.5}%` }} />
+                ))}
+              </div>
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400" preserveAspectRatio="none">
+                <path d="M0 380 Q100 370 150 340 Q200 300 250 220 Q300 120 350 40" stroke="url(#curveGrad)" strokeWidth="3" fill="none" opacity="0.6" />
+                <defs>
+                  <linearGradient id="curveGrad" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#f97316" stopOpacity="0.8" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute top-8 right-8 animate-bounce-slow">
+                <PlaneSvg className="w-10 h-10 text-red-500/60 -rotate-45" />
+              </div>
+              <LiveMultiplier />
+              <p className="text-white/30 text-xs mt-3 font-medium tracking-wider uppercase">Live Demo</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Stats bar ═══ */}
+      <section className="relative z-10 border-y border-white/5 bg-white/[0.02]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {[
+            { val: landingPlayers, label: 'Players' },
+            { val: landingWonToday, label: 'Won Today' },
+            { val: '3 Games', label: 'Ludo, Aviator, Spinner' },
+            { val: '24/7', label: 'Live Games' },
+          ].map((s, i) => (
+            <div key={i}>
+              <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">{s.val}</p>
+              <p className="text-white/40 text-sm mt-1 font-medium">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ Features ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">Why Players Love <span className="text-red-500">RushkroLudo</span></h2>
+            <p className="text-white/50 max-w-2xl mx-auto">Three exciting games, real winnings, and the best gaming experience.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {features.map((f, i) => (
+              <div key={i} className="group p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 hover:bg-white/[0.06] transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                  {f.icon}
+                </div>
+                <h3 className="font-bold text-lg mb-2">{f.title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ How to Play ═══ */}
+      <section id="how-to-play" className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 bg-gradient-to-b from-transparent via-red-950/5 to-transparent">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">How to Play</h2>
+            <p className="text-white/50">Get started in 4 simple steps</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {steps.map((s, i) => (
+              <div key={i} className="relative p-6 rounded-2xl bg-white/[0.03] border border-white/5 overflow-hidden group hover:border-red-500/20 transition-all">
+                <span className="absolute -top-3 -right-2 text-7xl font-black text-white/[0.03] group-hover:text-red-500/5 transition-colors select-none">{s.num}</span>
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-sm font-black mb-4 shadow-lg shadow-red-500/20">
+                    {s.num}
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">{s.title}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Game Details — 3 game description cards ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">Our <span className="text-red-500">Games</span></h2>
+            <p className="text-white/50">Something for every player</p>
+          </div>
+          <div className="space-y-6">
+            {/* Ludo King */}
+            <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-[#12121f] to-[#0e0e1a] border border-white/5 p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-green-500/20">
+                  <span className="text-4xl sm:text-5xl">🎲</span>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-2xl font-black mb-2">Ludo King</h3>
+                  <p className="text-white/50 leading-relaxed mb-3">
+                    Play the classic Ludo board game with a modern twist! Create private rooms with room codes, invite your friends, and compete for real money stakes. Roll the dice, strategize your moves, and race your tokens to victory.
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Room Codes</span>
+                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Play with Friends</span>
+                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">Real Stakes</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Aviator */}
+            <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-[#12121f] to-[#0e0e1a] border border-white/5 p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-500/20">
+                  <PlaneSvg className="w-12 h-12 sm:w-14 sm:h-14 text-white -rotate-12" />
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-2xl font-black mb-2">Aviator</h3>
+                  <p className="text-white/50 leading-relaxed mb-3">
+                    The ultimate crash game! Place your bet and watch the multiplier rise as the plane flies higher. Cash out before it crashes to lock in your winnings. Every round is different — the multiplier could crash at 1.2x or soar past 50x!
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                    <span className="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">Fast Rounds</span>
+                    <span className="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">Rising Multiplier</span>
+                    <span className="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">Cash Out Anytime</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Lucky Spinner */}
+            <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-[#12121f] to-[#0e0e1a] border border-white/5 p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/20">
+                  <span className="text-4xl sm:text-5xl">🎡</span>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-2xl font-black mb-2">Lucky Spinner</h3>
+                  <p className="text-white/50 leading-relaxed mb-3">
+                    Feeling lucky? Spin the colorful wheel of fortune and win instant prizes! Multiple prize segments with different multipliers. Simple, fun, and exciting — just spin and see where the wheel stops.
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                    <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">Instant Prizes</span>
+                    <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">Multiple Multipliers</span>
+                    <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">Daily Spins</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Download App Section ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 py-12 sm:py-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-3xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 p-8 sm:p-10 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-green-500/20">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black mb-3">Download the App</h2>
+            <p className="text-white/50 mb-6 max-w-md mx-auto">
+              Install RushkroLudo on your phone for the best gaming experience. Quick access, faster loading, and play anytime!
+            </p>
+            <button
+              onClick={handleDownload}
+              className="px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-green-600 to-green-500 text-white shadow-2xl shadow-green-600/30 hover:shadow-green-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mx-auto"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              Download Now
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Final CTA ═══ */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-black mb-4">
+            Ready to <span className="bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">Play & Win?</span>
+          </h2>
+          <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">
+            Join thousands of players winning every day. Create your account, add funds, and choose from Ludo, Aviator, or Spinner!
+          </p>
+          <button
+            onClick={handlePlay}
+            className="group relative px-10 py-5 rounded-2xl font-black text-xl bg-gradient-to-r from-red-600 to-red-500 text-white shadow-2xl shadow-red-600/30 hover:shadow-red-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-3">
+              Start Playing
+              <PlaneSvg className="w-6 h-6 -rotate-45 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          </button>
+        </div>
+      </section>
+
+      {/* ═══ Footer ═══ */}
+      <footer className="relative z-10 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                <LogoSvg className="w-6 h-6" />
+              </div>
+              <span className="font-extrabold">Rushkro<span className="text-red-500">Ludo</span></span>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-sm text-white/40">
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+                <Link to="/about" className="hover:text-white/70 transition-colors">About</Link>
+                <Link to="/how-to-play" className="hover:text-white/70 transition-colors">How to Play</Link>
+                <Link to="/contact" className="hover:text-white/70 transition-colors">Contact</Link>
+                <Link to="/privacy" className="hover:text-white/70 transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-white/70 transition-colors">Terms</Link>
+                <Link to="/support" className="hover:text-white/70 transition-colors">Support</Link>
+                <span>18+ | Play Responsibly</span>
+              </div>
+              {supportPhone && (
+                <a href={`tel:${supportPhone.replace(/[^0-9+]/g, '')}`} className="flex items-center gap-1.5 hover:text-white/70 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  {supportPhone}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ═══ Floating WhatsApp Icon ═══ */}
+      {whatsAppNumber && (
+        <a
+          href={`https://wa.me/${whatsAppNumber.replace(/[^0-9]/g, '')}`}
+          rel="noopener noreferrer"
+          className="fixed right-4 z-[9999] w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all cursor-pointer"
+          style={{
+            bottom: '24px',
+            animation: 'bounce 2s infinite',
+            animationDelay: '0.3s',
+            boxShadow: '0 6px 25px rgba(37, 211, 102, 0.5)',
+          }}
+          aria-label="Contact Support on WhatsApp"
+        >
+          <svg className="w-8 h-8" fill="white" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+          </svg>
+        </a>
+      )}
+
+      {/* Install tip toast (fallback for iOS / already installed) */}
+      {showInstallTip && (
+        <div className="fixed top-4 left-4 right-4 z-[99999] bg-gray-900 text-white rounded-xl p-4 shadow-2xl animate-slide-down">
+          <p className="font-bold text-sm mb-1">Install App</p>
+          <p className="text-xs text-gray-300">Android: Tap browser menu ⋮ → "Add to Home screen"</p>
+          <p className="text-xs text-gray-300">iOS: Tap Share → "Add to Home Screen"</p>
+          <button onClick={() => setShowInstallTip(false)} className="absolute top-2 right-3 text-gray-400 text-lg">&times;</button>
+        </div>
+      )}
+
+      {/* ═══ CSS Animations ═══ */}
+      <style>{`
+        @keyframes floatParticle {
+          0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+          25% { transform: translateY(-30px) translateX(10px); opacity: 0.6; }
+          50% { transform: translateY(-15px) translateX(-8px); opacity: 0.4; }
+          75% { transform: translateY(-40px) translateX(15px); opacity: 0.5; }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0) rotate(-45deg); }
+          50% { transform: translateY(-12px) rotate(-45deg); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 3s ease-in-out infinite;
+        }
+        @keyframes liveBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+/* ────────── Shayri Landing Page ────────── */
+const MotivationalLanding = ({ handlePlay, isAuthenticated, menuOpen, setMenuOpen }) => {
+  // SEO: Block Google from indexing the Shayri/motivational layout
+  const noIndexHelmet = (
+    <Helmet>
+      <meta name="robots" content="noindex, nofollow" />
+      <title>Shayri.com – Beautiful Hindi & Urdu Shayari Collection</title>
+    </Helmet>
+  );
+
+  const quotes = [
+    { text: "रौशनी तेरी ढूँढती है अँधेरा अपना, तू रहा खामोश सितारों की तरह।", author: "Jaun Elia" },
+    { text: "दिल की बात कहने का सलीका नहीं आता, सोचता रहता हूँ तुझे क्या कहूँ।", author: "Jaun Elia" },
+    { text: "ज़िंदगी यूँ ही गुज़र जाएगी अगर तू नहीं, तेरी यादों में खोकर जी लूँगा मैं।", author: "Jaun Elia" },
+    { text: "मैं ने उस से कहा मैं तुम्हारे बिना मर जाऊँगा, उस ने कहा ये तो सब कहते हैं।", author: "Jaun Elia" },
+    { text: "तुम मेरे पास होते हो गोया, जब कोई दूसरा नहीं होता।", author: "Jaun Elia" },
+    { text: "हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले, बहुत निकले मेरे अरमान लेकिन फिर भी कम निकले।", author: "Mirza Ghalib" },
+    { text: "मुझसे पहली सी मोहब्बत मेरे महबूब ना माँग।", author: "Faiz Ahmed Faiz" },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % quotes.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#1a1a2e] to-[#0f0f1e] text-white overflow-x-hidden">
+      {noIndexHelmet}
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,rgba(139,92,246,0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_50%_80%,rgba(59,130,246,0.08),transparent)]" />
+        <Particles />
+      </div>
+
+      {/* Navbar */}
+      <header className="relative z-30 border-b border-white/5">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
+          <Link to="/landing" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
+              <span className="text-lg">📜</span>
+            </div>
+            <span className="text-xl font-extrabold tracking-tight">Shayri<span className="text-violet-400">.com</span></span>
+          </Link>
+
+          <nav className="hidden sm:flex items-center gap-6">
+            {isAuthenticated && (
+              <>
+                <Link to="/dashboard" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Account</Link>
+                <Link to="/profile" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Profile</Link>
+              </>
+            )}
+            <button onClick={handlePlay} className="px-5 py-2.5 rounded-lg text-sm font-bold bg-violet-600 hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20">
+              Get Started
+            </button>
+          </nav>
+
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative z-10 px-4 sm:px-6 pt-16 sm:pt-24 pb-20 sm:pb-32">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-semibold mb-8">
+            <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+            Beautiful Shayri Collection
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-8">
+            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+              Words from the
+            </span>
+            <br />
+            <span className="text-white">Heart</span>
+            <br />
+            <span className="bg-gradient-to-r from-fuchsia-400 via-pink-400 to-rose-400 bg-clip-text text-transparent">
+              in Shayri.
+            </span>
+          </h1>
+
+          <p className="text-white/70 text-xl sm:text-2xl leading-relaxed mb-12 max-w-3xl mx-auto">
+            Where every word touches the soul. Hindi and Urdu shayari curated for you.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            {/* <button
+              onClick={handlePlay}
+              className="group relative px-10 py-5 rounded-2xl font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-2xl shadow-violet-600/30 hover:shadow-violet-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Explore Shayri
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            </button> */}
+          </div>
+
+          {/* Shayri Section */}
+          <div className="max-w-3xl mx-auto">
+            <div className="relative p-8 sm:p-12 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
+              <div className="absolute top-4 left-4 text-6xl font-black text-white/[0.05] select-none">"</div>
+              <p className="text-2xl sm:text-3xl font-bold text-white/90 leading-relaxed mb-6 relative z-10">
+                {quotes[currentIndex].text}
+              </p>
+              <p className="text-white/50 text-sm font-medium">— {quotes[currentIndex].author}</p>
+              <div className="flex justify-center gap-2 mt-6">
+                {quotes.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? 'bg-violet-400 w-6' : 'bg-white/20'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              Why <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Our Shayri</span>?
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Thousands of readers come here every day for beautiful words
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: '📖', title: 'Hindi Shayri', desc: 'Heart-touching Hindi shayari. A world of emotions and beautiful words.' },
+              { icon: '🖋️', title: 'John Elia', desc: 'Famous shayaris by John Elia. Deep emotions and beautiful expression.' },
+              { icon: '❤️', title: 'Words of the Heart', desc: 'Love, longing, and life. Shayari for every mood.' },
+            ].map((f, i) => (
+              <div key={i} className="group p-8 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-violet-500/30 hover:bg-white/[0.06] transition-all duration-300">
+                <div className="text-5xl mb-4">{f.icon}</div>
+                <h3 className="font-bold text-xl mb-3">{f.title}</h3>
+                <p className="text-white/50 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Arijit Singh Section */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Arijit Singh</span> — The Soulful Voice
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Bollywood ke sabse dil ko chhoone wali awaaz
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center mb-12">
+            <div className="relative inline-flex mb-6">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-violet-500/30 shadow-2xl shadow-violet-500/20">
+                <img
+                  src="/arijit.jpeg"
+                  alt="Arijit Singh"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Online / Live dot */}
+              <span className="absolute top-3 right-3 flex h-5 w-5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-5 w-5 bg-green-500 border-2 border-[#0f0f1a]" />
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Arijit Singh</h3>
+            <p className="text-white/50 text-center max-w-2xl">
+              Indian music industry ke sabse iconic singers mein se ek. Unki awaaz mein woh dard aur sukoon hai jo seedha dil ko chhoota hai.
+            </p>
+          </div>
+
+          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-violet-500/10 border border-blue-500/20 mb-8">
+            <h3 className="text-2xl font-bold text-center mb-8 text-white">
+              Channa Mereya — Ae Dil Hai Mushkil
+            </h3>
+            <div className="space-y-6 text-center">
+              <div className="p-4 rounded-xl bg-white/[0.03]">
+                <p className="text-xl text-white/90 leading-relaxed italic">"Achha chalta hoon duaaon mein yaad rakhna,</p>
+                <p className="text-xl text-white/90 leading-relaxed italic">Mere zikr ka zubaan pe swaad rakhna..."</p>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03]">
+                <p className="text-xl text-white/90 leading-relaxed italic">"Channa mereya mereya, channa mereya mereya,</p>
+                <p className="text-xl text-white/90 leading-relaxed italic">Channa mereya mereya belliya..."</p>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03]">
+                <p className="text-xl text-white/90 leading-relaxed italic">"Maahi ve, tu jo mileya, sab mileya,</p>
+                <p className="text-xl text-white/90 leading-relaxed italic">Meherbaani, phir kisi cheez ki kami nahi..."</p>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03]">
+                <p className="text-xl text-white/90 leading-relaxed italic">"Haan ranjha tu, yahan ranjha mein,</p>
+                <p className="text-xl text-white/90 leading-relaxed italic">Tere ishq pe hoon qurbaan mein..."</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+              <h4 className="font-bold text-lg mb-3 text-cyan-400">Tum Hi Ho</h4>
+              <p className="text-white/70 italic leading-relaxed">"Tum hi ho, ab tum hi ho, zindagi ab tum hi ho. Chain bhi, mera dard bhi, meri aashiqui tum hi ho..."</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+              <h4 className="font-bold text-lg mb-3 text-cyan-400">Raabta</h4>
+              <p className="text-white/70 italic leading-relaxed">"Kuch toh hai tujhse raabta, kuch toh hai tujhse raabta. Lagta hai ki tera mujhse hai koi rishta purana..."</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Jaun Elia Collection */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Jaun Elia</span> Ki Shayri
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Urdu adab ke azeem shayar — Jaun Elia ki unmatchable shayari
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { text: "मैं ने उस से कहा मैं तुम्हारे बिना मर जाऊँगा, उस ने कहा ये तो सब कहते हैं।", author: "Jaun Elia" },
+              { text: "तुम मेरे पास होते हो गोया, जब कोई दूसरा नहीं होता।", author: "Jaun Elia" },
+              { text: "बहुत दिनों से मैंने चाँद नहीं देखा है, बहुत दिनों से मैंने तुमको नहीं देखा है।", author: "Jaun Elia" },
+              { text: "वो मेरी ज़िंदगी से चले गए, अब मौसम भी बदलते नहीं लगते।", author: "Jaun Elia" },
+              { text: "कुछ लोग बहुत याद आते हैं, कुछ लोग भुलाए नहीं जाते।", author: "Jaun Elia" },
+              { text: "इश्क़ में ग़ैरत-ए-जज़्बात ने रोका वरना, हम भी आँखों से कई बार कहा चाहते थे।", author: "Jaun Elia" },
+            ].map((s, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-violet-500/30 transition-all duration-300">
+                <div className="text-4xl font-black text-white/[0.06] mb-2">"</div>
+                <p className="text-lg text-white/85 leading-relaxed mb-3">{s.text}</p>
+                <p className="text-violet-400 text-sm font-medium">— {s.author}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Shayar Kaise Bane */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">Shayar</span> Kaise Bane?
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Shayari likhne ka hunar — dil se alfaaz tak ka safar
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              { step: '01', title: 'Padhen Bahut Zyada', desc: 'Mirza Ghalib, Faiz Ahmed Faiz, Jaun Elia, Ahmed Faraz — in sab ko padhein. Jitna padhenge, utna aapki soch aur alfaaz mein gehrai aayegi.' },
+              { step: '02', title: 'Mehsoos Karein', desc: 'Shayari dil se nikalti hai. Apne jazbaat ko samjhein — pyaar, dard, khushi, tanhai. Jo mehsoos karein, wahi likhein.' },
+              { step: '03', title: 'Roz Likhein', desc: 'Rozana 2-4 sher likhne ki aadat banayein. Pehle achha nahi lagega, lekin waqt ke saath aapki writing behtar hogi.' },
+              { step: '04', title: 'Beher aur Qaafiya Seekhein', desc: 'Urdu shayari mein beher (meter) aur qaafiya (rhyme) bahut zaroori hai. YouTube se tutorials dekhein aur mashq karein.' },
+            ].map((item, i) => (
+              <div key={i} className="p-8 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-pink-500/30 hover:bg-white/[0.06] transition-all duration-300">
+                <div className="text-5xl font-black text-pink-500/20 mb-3">{item.step}</div>
+                <h3 className="font-bold text-xl mb-3 text-white">{item.title}</h3>
+                <p className="text-white/50 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Motivation Speaker Kaise Bane */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Motivation Speaker</span> Kaise Bane?
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Logon ko inspire karna ek kala hai — seekhein kaise
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: '🎤', title: 'Bolna Seekhein', desc: 'Apni awaaz par control rakhein. Roz aaine ke saamne bolne ki practice karein. Confidence sabse zaroori hai.' },
+              { icon: '📚', title: 'Knowledge Badhayein', desc: 'Kitaabein padhein — "Think and Grow Rich", "The Power of Habit". Jitna gyaan hoga, utna achha bol paayenge.' },
+              { icon: '🎯', title: 'Apni Kahani Sunayein', desc: 'Logon ko apni real life ki stories sunayein. Authenticity sabse powerful tool hai ek speaker ke liye.' },
+              { icon: '📹', title: 'Videos Banayein', desc: 'YouTube par apne thoughts share karein. Chhoti videos se shuru karein. Consistency rakhein — roz ek video.' },
+              { icon: '🤝', title: 'Network Banayein', desc: 'Events mein jaayein, logon se milein. Jitne zyada log aapko sunenge, utna aapka confidence badhega.' },
+              { icon: '💡', title: 'Unique Bano', desc: 'Sabse alag kuch kahein. Apna style develop karein. Copy mat karo — inspire ho aur apna raasta banao.' },
+            ].map((f, i) => (
+              <div key={i} className="group p-8 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-amber-500/30 hover:bg-white/[0.06] transition-all duration-300">
+                <div className="text-5xl mb-4">{f.icon}</div>
+                <h3 className="font-bold text-xl mb-3">{f.title}</h3>
+                <p className="text-white/50 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* More Shayri Collection */}
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black mb-4">
+              Dil Ki <span className="bg-gradient-to-r from-rose-400 to-pink-400 bg-clip-text text-transparent">Baatein</span>
+            </h2>
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+              Mashoor shayaron ki dilkash shayari
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { text: "हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले, बहुत निकले मेरे अरमान लेकिन फिर भी कम निकले।", author: "Mirza Ghalib" },
+              { text: "मुझसे पहली सी मोहब्बत मेरे महबूब ना माँग, मैंने समझा था कि तू है तो दरख्शाँ है हयात।", author: "Faiz Ahmed Faiz" },
+              { text: "ज़िंदगी में कुछ ऐसे लम्हे आते हैं, आँखें भर आती हैं और होंठ मुस्कुराते हैं।", author: "Ahmed Faraz" },
+              { text: "इक फ़क़ीर है ख़ाली हाथ, फिर भी दुनिया माँगता है। दिल माँगता है तुझे बस, बाकी कुछ नहीं चाहता है।", author: "Jaun Elia" },
+            ].map((s, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/30 transition-all duration-300">
+                <div className="text-4xl font-black text-white/[0.06] mb-2">"</div>
+                <p className="text-lg text-white/85 leading-relaxed mb-3">{s.text}</p>
+                <p className="text-rose-400 text-sm font-medium">— {s.author}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                <span className="text-base">📜</span>
+              </div>
+              <span className="font-extrabold">Shayri<span className="text-violet-400">.com</span></span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-white/40">
+              <span className="text-white/30">Shayri.com</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Landing;

@@ -1,0 +1,794 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { compressImage } from '../utils/compressImage';
+import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
+import { walletAPI, gameAPI, authAPI, settingsAPI, spinnerAPI, ludoAPI } from '../services/api';
+import toast from 'react-hot-toast';
+import Header from '../components/Header';
+import Navbar from '../components/Navbar';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+
+const inputCls = 'w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors';
+
+const Profile = () => {
+  const { user, logout, refreshUser, patchUser } = useAuth();
+  const { socket } = useSocket();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [stats, setStats] = useState({ totalBets: 0, totalWins: 0, todayEarnings: 0, spinnerEarnings: 0, ludoEarnings: 0 });
+  const [support, setSupport] = useState({ supportPhone: null, supportWhatsApp: null });
+  const whatsAppNumber = support.supportWhatsApp || support.supportPhone;
+  const [showInstallTip, setShowInstallTip] = useState(false);
+  const [aviatorComingSoon, setAviatorComingSoon] = useState(false);
+  const [spinnerComingSoon, setSpinnerComingSoon] = useState(false);
+  const [gameStatusLoaded, setGameStatusLoaded] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', phone: '', upiId: '', upiNumber: '', bankAccountNumber: '', bankIfscCode: '', bankAccountHolder: '' });
+  const [paymentTab, setPaymentTab] = useState('upi'); // 'upi' | 'bank'
+  const [editLoading, setEditLoading] = useState(false);
+  const [editMsg, setEditMsg] = useState('');
+  const [balanceDetails, setBalanceDetails] = useState({ depositBalance: 0, earningsBalance: 0 });
+  const [kycData, setKycData] = useState(null);
+  const [kycModalOpen, setKycModalOpen] = useState(false);
+  const [kycForm, setKycForm] = useState({ name: '', aadhaarNumber: '', address: '' });
+  const [kycFile, setKycFile] = useState(null);
+  const [kycPreview, setKycPreview] = useState(null);
+  const [kycBackFile, setKycBackFile] = useState(null);
+  const [kycBackPreview, setKycBackPreview] = useState(null);
+  const [kycSubmitting, setKycSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchStats();
+    fetchSupport();
+    fetchBalanceDetails();
+    fetchKycStatus();
+    settingsAPI.getAviatorStatus().then(res => {
+      if (res.data?.aviatorComingSoon) setAviatorComingSoon(true);
+      if (res.data?.spinnerComingSoon) setSpinnerComingSoon(true);
+    }).catch(() => {}).finally(() => setGameStatusLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handler = ({ kycStatus, reason }) => {
+      patchUser({ kycStatus });
+      fetchKycStatus();
+      if (kycStatus === 'approved') toast.success('KYC approved! Withdrawals enabled.');
+      else if (kycStatus === 'rejected') toast.error(`KYC rejected: ${reason}`);
+    };
+    socket.on('user:kyc-updated', handler);
+    return () => socket.off('user:kyc-updated', handler);
+  }, [socket, refreshUser]);
+
+  useEffect(() => {
+    if (searchParams.get('kyc') === 'open') {
+      const status = user?.kycStatus;
+      if (status === 'pending') {
+        toast('KYC already under review. Please wait for admin approval.', { icon: '⏳' });
+      } else if (status === 'approved') {
+        toast.success('Your KYC is already verified.');
+      } else {
+        setKycModalOpen(true);
+      }
+    }
+  }, [searchParams, user?.kycStatus]);
+
+  const fetchKycStatus = async () => {
+    try {
+      const res = await authAPI.getKycStatus();
+      setKycData(res.data?.kyc || null);
+    } catch { /* silent */ }
+  };
+
+  const handleKycSubmit = async (e) => {
+    e.preventDefault();
+    if (!kycForm.name || !kycForm.name.trim()) {
+      toast.error('Name is required'); return;
+    }
+    if (!kycForm.address) {
+      toast.error('Address is required'); return;
+    }
+    if (!kycFile) {
+      toast.error('Aadhaar front photo is required'); return;
+    }
+    if (!kycBackFile) {
+      toast.error('Aadhaar back photo is required'); return;
+    }
+    setKycSubmitting(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', kycForm.name.trim());
+      fd.append('aadhaarNumber', kycForm.aadhaarNumber.replace(/\s/g, ''));
+      fd.append('address', kycForm.address);
+      if (kycFile) {
+        const compressedKyc = await compressImage(kycFile, 1280, 0.6);
+        fd.append('aadhaarFront', compressedKyc);
+      }
+      if (kycBackFile) {
+        const compressedBack = await compressImage(kycBackFile, 1280, 0.6);
+        fd.append('aadhaarBack', compressedBack);
+      }
+      console.log('[KYC] Submitting:', { name: kycForm.name, front: kycFile?.name, back: kycBackFile?.name, fdKeys: [...fd.keys()] });
+      await authAPI.submitKyc(fd);
+      toast.success('KYC submitted! Awaiting admin review.');
+      setKycModalOpen(false);
+      setKycForm({ name: '', aadhaarNumber: '', address: '' });
+      setKycFile(null);
+      setKycPreview(null);
+      setKycBackFile(null);
+      setKycBackPreview(null);
+      await fetchKycStatus();
+      // Update user context so kycStatus reflects
+      window.location.reload();
+    } catch (err) {
+      console.error('[KYC Error]', err.response?.status, err.response?.data, err.message);
+      const msg = err.response?.data?.message;
+      if (msg) {
+        toast.error(msg);
+      } else if (err.message?.includes('Network')) {
+        toast.error('Network error. Check your connection.');
+      } else {
+        toast.error('Failed to submit KYC. Please try again.');
+      }
+    } finally {
+      setKycSubmitting(false);
+    }
+  };
+
+  const fetchBalanceDetails = async () => {
+    try {
+      const res = await walletAPI.getBalance();
+      setBalanceDetails({ depositBalance: res.data.depositBalance || 0, earningsBalance: res.data.earningsBalance || 0 });
+    } catch { /* silent */ }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await gameAPI.getHistory({ limit: 100 });
+      const bets = res.data?.records || res.data || [];
+      const today = new Date().toDateString();
+      const todayBets = bets.filter(b => new Date(b.createdAt).toDateString() === today);
+      const todayWins = todayBets.filter(b => b.status === 'won');
+      const todayEarnings = todayWins.reduce((sum, b) => sum + (b.profit || 0), 0);
+      
+      // Fetch spinner earnings for today (profit = winAmount - 50 per spin)
+      let spinnerEarnings = 0;
+      try {
+        const spinnerRes = await spinnerAPI.getHistory();
+        const spinnerRecords = (spinnerRes.data?.records || spinnerRes.data) || [];
+        const todaySpinnerRecords = spinnerRecords.filter(s => new Date(s.createdAt).toDateString() === today);
+        spinnerEarnings = todaySpinnerRecords.reduce((sum, s) => sum + ((s.winAmount || 0) - 50), 0);
+      } catch (err) {
+        // Silent fail for spinner earnings
+      }
+
+      // Fetch ludo earnings for today (profit = prize - entryAmount for wins, -entryAmount for losses)
+      let ludoEarnings = 0;
+      try {
+        const ludoRes = await ludoAPI.getMyMatches({ status: 'history', limit: 100 });
+        const ludoMatches = ludoRes.data?.records || (Array.isArray(ludoRes.data) ? ludoRes.data : []);
+        const todayLudoMatches = ludoMatches.filter(m => new Date(m.createdAt).toDateString() === today);
+        ludoEarnings = todayLudoMatches.reduce((sum, m) => {
+          if (m.status === 'cancelled') return sum;
+          if (!m.winnerId) return sum;
+          const isWinner = m.winnerId === user?._id;
+          if (isWinner) {
+            const prize = Math.round(2 * m.entryAmount * 0.9);
+            return sum + (prize - m.entryAmount);
+          }
+          return sum - m.entryAmount;
+        }, 0);
+      } catch (err) {
+        // Silent fail for ludo earnings
+      }
+
+      setStats({
+        totalBets: bets.length,
+        totalWins: bets.filter(b => b.status === 'won').length,
+        todayEarnings: todayEarnings + spinnerEarnings + ludoEarnings,
+        spinnerEarnings,
+        ludoEarnings,
+      });
+    } catch (error) {
+      const isNetworkError = !error.response || error.code === 'ERR_NETWORK';
+      if (!isNetworkError && error.response?.status !== 401) {
+        console.error('Failed to fetch stats:', error.message);
+      }
+    }
+  };
+
+  const fetchSupport = async () => {
+    try {
+      const res = await settingsAPI.getSupport();
+      console.log('Support API response:', res.data);
+      setSupport(res.data || { supportPhone: null, supportWhatsApp: null });
+      // Debug: log support data
+      if (res.data?.supportWhatsApp) {
+        console.log('WhatsApp number found:', res.data.supportWhatsApp);
+      } else {
+        console.warn('No WhatsApp number configured in settings');
+      }
+    } catch (err) { 
+      console.error('Failed to fetch support:', err);
+      setSupport({ supportPhone: null, supportWhatsApp: null });
+    }
+  };
+
+  const handleLogout = () => { logout(); navigate('/'); };
+
+  const openEdit = () => {
+    setEditForm({
+      name: user?.name || '',
+      phone: user?.phone || '',
+      upiId: user?.upiId || '',
+      upiNumber: user?.upiNumber || '',
+      bankAccountNumber: user?.bankAccountNumber || '',
+      bankIfscCode: user?.bankIfscCode || '',
+      bankAccountHolder: user?.bankAccountHolder || '',
+    });
+    setPaymentTab('upi');
+    setEditMsg('');
+    setEditOpen(true);
+  };
+
+  const handleEditSave = async () => {
+    setEditLoading(true);
+    setEditMsg('');
+    try {
+      await authAPI.updateProfile(editForm);
+      await refreshUser();
+      setEditMsg('Profile updated!');
+      setTimeout(() => setEditOpen(false), 800);
+    } catch (err) {
+      setEditMsg(err.response?.data?.message || 'Failed to update');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const commonFunctions = [
+    { icon: '📋', label: 'History', path: '/history' },
+    { icon: '💰', label: 'Deposit', path: '/wallet' },
+    { icon: '💸', label: 'Withdraw', path: '/wallet' },
+    { icon: '🎧', label: 'Support', path: '/support' },
+  ];
+
+  const otherFunctions = [
+    { icon: '🎁', label: 'Bonus', path: '/bonus' },
+    { icon: '🎰', label: 'Lucky', path: '/spinner' },
+    { icon: '⬇️', label: 'Download', path: '#', isDownload: true },
+    { icon: '📜', label: 'T&C', path: '/terms' },
+  ];
+
+  const gameCards = [
+    {
+      id: 'ludo',
+      title: 'Ludo',
+      subtitle: 'Room code • Bet & play',
+      path: '/ludo',
+      gradient: 'from-green-500 to-emerald-600',
+      image: '/ludo-classic1.png',
+      fallbackIcon: (
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 12h16v16H12V12zm24 0h16v16H36V12zM12 36h16v16H12V52zm24 0h16v16H36V52z" fill="currentColor" />
+          <circle cx="20" cy="20" r="4" fill="white" />
+          <circle cx="44" cy="20" r="4" fill="white" />
+          <circle cx="20" cy="44" r="4" fill="white" />
+          <circle cx="44" cy="44" r="4" fill="white" />
+        </svg>
+      ),
+    },
+    {
+      id: 'aviator',
+      title: 'Aviator',
+      subtitle: 'Watch it fly & cash out',
+      path: '/aviator',
+      gradient: 'from-red-500 to-orange-600',
+      image: '/avi.jpeg',
+      fallbackIcon: (
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 8 L40 24 L56 28 L44 40 L46 56 L32 48 L18 56 L20 40 L8 28 L24 24 Z" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M32 20 L36 28 L44 30 L38 36 L39 42 L32 38 L25 42 L26 36 L20 30 L28 28 Z" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      id: 'lucky-draw',
+      title: 'Lucky Draw',
+      subtitle: 'Spin the wheel & win',
+      path: '/spinner',
+      gradient: 'from-amber-500 to-orange-600',
+      image: '/spinner.jpeg',
+      fallbackIcon: (
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="none" />
+          <path d="M32 4 L32 60 M32 32 L56 32 M32 32 L8 32 M32 32 L50 12 M32 32 L14 52 M32 32 L50 52 M32 32 L14 12" stroke="currentColor" strokeWidth="2" />
+          <circle cx="32" cy="32" r="6" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      id: 'whatsapp',
+      title: 'WhatsApp',
+      subtitle: 'Contact support',
+      path: null,
+      gradient: 'from-green-500 to-emerald-600',
+      image: '/ludosupport.png',
+      isExternal: true,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#E3F2FD] pb-[200px] overflow-x-hidden relative">
+      <Header />
+
+      <div className="max-w-md mx-auto p-4 w-full min-w-0">
+        {/* User Info */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative">
+            <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-2xl font-bold">
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+            </div>
+            {/* Online indicator — WhatsApp style */}
+            <span className="absolute top-0 right-0 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#E3F2FD]" />
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold text-gray-800 truncate">{user?.name || 'User'}</h2>
+            <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+          </div>
+          <button onClick={openEdit} className="bg-primary-100 text-primary-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+            Edit
+          </button>
+        </div>
+
+        {/* Games - Show First */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Games</h3>
+          {!gameStatusLoaded ? (
+            <div className="flex justify-center py-8">
+              <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {gameCards.filter((g) => {
+              if (g.id === 'aviator' && aviatorComingSoon) return false;
+              if (g.id === 'lucky-draw' && spinnerComingSoon) return false;
+              return true;
+            }).map((game) => (
+              <button
+                key={game.id}
+                onClick={() => {
+                  if (game.isExternal) {
+                    window.location.href = whatsAppNumber ? `https://wa.me/${whatsAppNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/';
+                  } else {
+                    navigate(game.path);
+                  }
+                }}
+                className="rounded-2xl overflow-hidden shadow-md hover:shadow-lg active:scale-[0.98] transition-all w-full aspect-square relative"
+              >
+                {/* LIVE badge — inside image */}
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'liveBlink 1s ease-in-out infinite' }} />
+                  <span className="text-[10px] font-bold text-white uppercase">LIVE</span>
+                </div>
+                {game.customRender ? (
+                  game.customRender
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${game.gradient} flex items-center justify-center text-white relative overflow-hidden`}>
+                    {game.image ? (
+                      <>
+                        <img
+                          src={game.image}
+                          alt={game.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const el = e.target.nextElementSibling;
+                            if (el) el.style.display = 'flex';
+                          }}
+                        />
+                        <div className="absolute inset-0 hidden items-center justify-center" style={{ display: 'none' }}>
+                          <div className="w-14 h-14">{game.fallbackIcon}</div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-16 h-16 flex-shrink-0">{game.fallbackIcon}</div>
+                    )}
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+          )}
+        </div>
+
+        {/* Balance Card */}
+        <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-5 mb-6 text-white overflow-hidden">
+          <div className="flex justify-between items-start gap-3 min-w-0">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm opacity-80">Wallet Balance</p>
+              <p className="text-2xl sm:text-3xl font-bold mt-1 truncate">₹{user?.walletBalance?.toFixed(2) || '0.00'}</p>
+              <p className="text-sm opacity-80 mt-1">Today's Earnings: ₹{stats.todayEarnings.toFixed(2)}</p>
+              <p className="text-xs opacity-70 mt-0.5">(Aviator: ₹{(stats.todayEarnings - stats.spinnerEarnings - stats.ludoEarnings).toFixed(2)} | Spinner: ₹{stats.spinnerEarnings.toFixed(2)} | Ludo: ₹{stats.ludoEarnings.toFixed(2)})</p>
+              <div className="flex gap-4 mt-2 pt-2 border-t border-white/20">
+                <div><p className="text-xs opacity-70">Deposit</p><p className="text-sm font-bold">₹{balanceDetails.depositBalance.toFixed(2)}</p></div>
+                <div><p className="text-xs opacity-70">Earnings</p><p className="text-sm font-bold">₹{balanceDetails.earningsBalance.toFixed(2)}</p></div>
+              </div>
+            </div>
+            <button onClick={() => navigate('/wallet')} className="flex-shrink-0 bg-white bg-opacity-20 px-4 py-2 rounded-lg text-sm font-medium">Detail</button>
+          </div>
+        </div>
+
+        {/* Referral Code */}
+        {user?.referralCode && (
+          <div className="mb-6 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <h3 className="font-bold text-gray-800 mb-3">Your Referral Code</h3>
+            <div className="flex items-center justify-between bg-primary-50 border border-primary-100 rounded-xl px-4 py-3">
+              <span className="font-mono font-black text-primary-700 text-xl tracking-widest">{user.referralCode}</span>
+              <button
+                onClick={() => { navigator.clipboard.writeText(user.referralCode); toast.success('Referral code copied!'); }}
+                className="flex items-center gap-1.5 bg-primary-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">Share this code — earn 3-4% when your friend wins a Ludo match</p>
+          </div>
+        )}
+
+        {/* KYC Verification */}
+        <div className="mb-6 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-gray-800">KYC Verification</h3>
+            {user?.kycStatus === 'approved' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">Verified ✓</span>}
+            {user?.kycStatus === 'pending' && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">Under Review</span>}
+            {user?.kycStatus === 'rejected' && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-semibold">Rejected</span>}
+            {(!user?.kycStatus || user?.kycStatus === 'none') && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold">Not Submitted</span>}
+          </div>
+          {user?.kycStatus === 'approved' && <p className="text-xs text-gray-500">Your identity is verified. Withdrawals are enabled.</p>}
+          {user?.kycStatus === 'pending' && <p className="text-xs text-gray-500">Your KYC is under review. You will be notified once approved.</p>}
+          {user?.kycStatus === 'rejected' && (
+            <div>
+              {kycData?.rejectionReason && <p className="text-xs text-red-600 mb-2">Reason: {kycData.rejectionReason}</p>}
+              <button onClick={() => setKycModalOpen(true)} className="w-full py-2 rounded-xl bg-red-500 text-white text-sm font-semibold">Re-submit KYC</button>
+            </div>
+          )}
+          {(!user?.kycStatus || user?.kycStatus === 'none') && (
+            <div>
+              <p className="text-xs text-gray-500 mb-3">Complete KYC to enable withdrawals.</p>
+              <button onClick={() => setKycModalOpen(true)} className="w-full py-2 rounded-xl bg-primary-700 text-white text-sm font-semibold">Complete KYC</button>
+            </div>
+          )}
+        </div>
+
+        {/* KYC Modal — block if already approved */}
+        {kycModalOpen && user?.kycStatus === 'approved' && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/70" onClick={() => setKycModalOpen(false)} />
+            <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+              <p className="text-green-600 text-4xl mb-3">✓</p>
+              <h3 className="font-bold text-gray-800 text-lg mb-1">KYC Already Verified</h3>
+              <p className="text-gray-500 text-sm mb-4">Your identity is verified. No action needed.</p>
+              <button onClick={() => setKycModalOpen(false)} className="px-6 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold">OK</button>
+            </div>
+          </div>
+        )}
+        {kycModalOpen && user?.kycStatus !== 'approved' && (
+          <div className="fixed inset-0 z-[9999] flex items-end justify-center">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setKycModalOpen(false)} />
+            {/* Sheet — scrollable, max 95vh */}
+            <div className="relative w-full max-w-md bg-[#111827] rounded-t-3xl shadow-2xl animate-slide-up flex flex-col" style={{ maxHeight: '95vh' }}>
+              {/* Handle */}
+              <div className="px-5 pt-5">
+                <div className="w-10 h-1 bg-gray-600 rounded-full mx-auto mb-4" />
+              </div>
+              <div className="overflow-y-auto px-5 pb-8 flex-1">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-white font-bold text-lg">KYC Verification</h2>
+                  <p className="text-gray-400 text-xs mt-0.5">Required to enable withdrawals</p>
+                </div>
+                <button onClick={() => setKycModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:text-white">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleKycSubmit} className="space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Full Name <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="As per Aadhaar"
+                    value={kycForm.name}
+                    onChange={(e) => setKycForm({ ...kycForm, name: e.target.value })}
+                    className={inputCls}
+                    required
+                  />
+                </div>
+
+                {/* Aadhaar Number */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Aadhaar Number</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="XXXX XXXX XXXX"
+                    maxLength={14}
+                    value={kycForm.aadhaarNumber}
+                    onChange={(e) => setKycForm({ ...kycForm, aadhaarNumber: e.target.value })}
+                    className={inputCls}
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Full Address</label>
+                  <textarea
+                    rows={2}
+                    placeholder="House No., Street, City, State, PIN"
+                    value={kycForm.address}
+                    onChange={(e) => setKycForm({ ...kycForm, address: e.target.value })}
+                    className={`${inputCls} resize-none`}
+                    required
+                  />
+                </div>
+
+                {/* Aadhaar Photo */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Aadhaar Front Photo <span className="text-red-400">*</span>
+                  </label>
+                  <label className="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-primary-500 transition-colors bg-gray-800/40 min-h-[100px]">
+                    {kycPreview ? (
+                      <div className="w-full">
+                        <img src={kycPreview} alt="Aadhaar preview" className="w-full rounded-xl object-cover max-h-48" />
+                        <p className="text-center text-xs text-green-400 py-2">Tap to change photo</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center py-4 px-3">
+                        <svg className="w-8 h-8 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <p className="text-gray-400 text-sm">Tap to upload photo</p>
+                        <p className="text-gray-600 text-xs mt-0.5">JPG, PNG up to 5MB</p>
+                      </div>
+                    )}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                      const f = e.target.files[0];
+                      if (!f) return;
+                      setKycFile(f);
+                      setKycPreview(URL.createObjectURL(f));
+                    }} />
+                  </label>
+                </div>
+
+                {/* Aadhaar Back Photo */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Aadhaar Back Photo <span className="text-red-400">*</span>
+                  </label>
+                  <label className="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-primary-500 transition-colors bg-gray-800/40 min-h-[100px]">
+                    {kycBackPreview ? (
+                      <div className="w-full">
+                        <img src={kycBackPreview} alt="Aadhaar back preview" className="w-full rounded-xl object-cover max-h-48" />
+                        <p className="text-center text-xs text-green-400 py-2">Tap to change photo</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center py-4 px-3">
+                        <svg className="w-8 h-8 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <p className="text-gray-400 text-sm">Tap to upload back photo</p>
+                        <p className="text-gray-600 text-xs mt-0.5">JPG, PNG up to 5MB</p>
+                      </div>
+                    )}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                      const f = e.target.files[0];
+                      if (!f) return;
+                      setKycBackFile(f);
+                      setKycBackPreview(URL.createObjectURL(f));
+                    }} />
+                  </label>
+                </div>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={kycSubmitting}
+                  className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {kycSubmitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                      Submitting...
+                    </span>
+                  ) : 'Submit KYC'}
+                </button>
+              </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Common Functions */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Common Functions</h3>
+          <div className="grid grid-cols-4 gap-3">
+            {commonFunctions.map((func, i) => (
+              <button key={i} onClick={() => func.path !== '#' && navigate(func.path)} className="bg-white rounded-xl p-4 flex flex-col items-center shadow-sm">
+                <span className="text-2xl mb-2">{func.icon}</span>
+                <span className="text-xs text-gray-600">{func.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Other Functions */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Other Functions</h3>
+          <div className="grid grid-cols-4 gap-3">
+            {otherFunctions.map((func, i) => (
+              <button 
+                key={i} 
+                onClick={() => {
+                  if (func.isDownload) {
+                    if (window.deferredPrompt) {
+                      window.deferredPrompt.prompt();
+                      window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
+                    } else {
+                      setShowInstallTip(true);
+                      setTimeout(() => setShowInstallTip(false), 5000);
+                    }
+                  } else if (func.path !== '#') {
+                    navigate(func.path);
+                  }
+                }} 
+                className="bg-white rounded-xl p-4 flex flex-col items-center shadow-sm"
+              >
+                <span className="text-2xl mb-2">{func.icon}</span>
+                <span className="text-xs text-gray-600">{func.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* WhatsApp Support */}
+        {whatsAppNumber ? (
+          <div className="mb-6">
+            <a
+              href={`https://wa.me/${whatsAppNumber.replace(/[^0-9]/g, '')}`}
+              rel="noopener noreferrer"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+              Contact Support on WhatsApp
+            </a>
+          </div>
+        ) : null}
+
+        {/* Share & Invite */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Share & Invite</h3>
+          <div className="flex gap-3">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent('Play Ludo, Aviator & Lucky Spinner! Win real cash with instant UPI withdrawals. Join now: ' + window.location.origin)}`}
+              rel="noopener noreferrer"
+              className="flex-1 bg-[#25D366] text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 text-sm"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              Share on WhatsApp
+            </a>
+            <button
+              onClick={() => { navigator.clipboard.writeText(window.location.origin); alert('Link copied!'); }}
+              className="flex-1 bg-gray-800 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 text-sm"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button onClick={handleLogout} className="w-full bg-red-500 text-white py-4 rounded-xl font-medium">Logout</button>
+      </div>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent>
+          {editMsg && <div className={`mb-3 p-2 rounded text-sm ${editMsg.includes('updated') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{editMsg}</div>}
+          <TextField fullWidth label="Name" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} sx={{ mt: 1, mb: 2 }} />
+          <TextField fullWidth label="Phone" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} sx={{ mb: 2 }} />
+
+          {/* Payment method tabs */}
+          <div className="flex bg-gray-100 rounded-xl p-1 mb-3">
+            <button
+              type="button"
+              onClick={() => setPaymentTab('upi')}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${paymentTab === 'upi' ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}
+            >
+              UPI
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentTab('bank')}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${paymentTab === 'bank' ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}
+            >
+              Bank Account
+            </button>
+          </div>
+
+          {paymentTab === 'upi' ? (
+            <>
+              <TextField fullWidth label="UPI ID (e.g. name@upi)" value={editForm.upiId} onChange={(e) => setEditForm({ ...editForm, upiId: e.target.value })} sx={{ mb: 2 }} />
+              <TextField fullWidth label="UPI Number (mobile linked to UPI)" value={editForm.upiNumber} onChange={(e) => setEditForm({ ...editForm, upiNumber: e.target.value })} sx={{ mb: 1 }} />
+            </>
+          ) : (
+            <>
+              <TextField fullWidth label="Account Holder Name" value={editForm.bankAccountHolder} onChange={(e) => setEditForm({ ...editForm, bankAccountHolder: e.target.value })} sx={{ mb: 2 }} />
+              <TextField fullWidth label="Account Number" value={editForm.bankAccountNumber} onChange={(e) => setEditForm({ ...editForm, bankAccountNumber: e.target.value })} sx={{ mb: 2 }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
+              <TextField fullWidth label="IFSC Code" value={editForm.bankIfscCode} onChange={(e) => setEditForm({ ...editForm, bankIfscCode: e.target.value.toUpperCase() })} sx={{ mb: 1 }} placeholder="e.g. SBIN0001234" />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleEditSave} disabled={editLoading}>{editLoading ? 'Saving…' : 'Save'}</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Install tip toast (fallback for iOS / already installed) */}
+      {showInstallTip && (
+        <div className="fixed top-4 left-4 right-4 z-[99999] bg-gray-900 text-white rounded-xl p-4 shadow-2xl">
+          <p className="font-bold text-sm mb-1">Install App</p>
+          <p className="text-xs text-gray-300">Android: Tap browser menu ⋮ → "Add to Home screen"</p>
+          <p className="text-xs text-gray-300">iOS: Tap Share → "Add to Home Screen"</p>
+          <button onClick={() => setShowInstallTip(false)} className="absolute top-2 right-3 text-gray-400 text-lg">&times;</button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes liveBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
+
+      {/* Floating WhatsApp Icon - Absolute position above navbar */}
+      {whatsAppNumber && (
+        <a
+          href={`https://wa.me/${whatsAppNumber.replace(/[^0-9]/g, '')}`}
+          rel="noopener noreferrer"
+          className="absolute right-4 z-[9999] w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/50 hover:scale-110 transition-all cursor-pointer"
+          style={{
+            bottom: '200px',
+            animation: 'bounce 2s infinite',
+            boxShadow: '0 6px 25px rgba(37, 211, 102, 0.5)',
+          }}
+          aria-label="Contact Support on WhatsApp"
+        >
+          <svg className="w-9 h-9" fill="white" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+          </svg>
+        </a>
+      )}
+
+      <Navbar />
+    </div>
+  );
+};
+
+export default Profile;
