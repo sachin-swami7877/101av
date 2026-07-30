@@ -16,7 +16,7 @@ const AviatorPublicContent = () => {
       <Helmet>
         <title>Aviator Crash Game – Play & Win Real Cash | 101Dream</title>
         <meta name="description" content="Play Aviator crash game on 101Dream. Watch the multiplier rise, cash out before it crashes and win real money. Live rounds, instant UPI withdrawals!" />
-        <meta name="keywords" content="Aviator game, aviator crash game, 101Dream aviator, 101dream, Rushkro Ludo, Rush Kro Ludo, RushLudo, rushludo, Rush Ludo, RushKro, rushkro, Ludo Rush, aviator game kaise khele, aviator game real money, crash game India, online aviator game" />
+        <meta name="keywords" content="Aviator game, aviator crash game, 101Dream aviator, 101dream, aviator game kaise khele, aviator game real money, crash game India, online aviator game" />
         <link rel="canonical" href="https://101dream.com/aviator-public" />
       </Helmet>
       {/* Simplified header with login CTA */}
@@ -24,7 +24,7 @@ const AviatorPublicContent = () => {
         <div className="max-w-md mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-base font-extrabold text-white leading-none">
-              101<span className="text-red-500">Dream</span>
+              101<span className="text-amber-400">Dream</span>
             </span>
             <div className="flex items-center gap-1 ml-2">
               <div className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400' : 'bg-red-400'}`} />

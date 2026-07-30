@@ -114,7 +114,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#E3F2FD] pb-28 overflow-x-hidden">
+    <div className="min-h-screen bg-[#EDE9FE] pb-28 overflow-x-hidden">
       <Header />
 
       <div className="max-w-md mx-auto p-3 w-full min-w-0">
@@ -140,7 +140,7 @@ const Home = () => {
         <div className="mb-4">
           {!gameStatusLoaded ? (
             <div className="flex justify-center py-8">
-              <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-3 border-violet-400 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
           <div className="grid grid-cols-2 gap-3 pt-3">
@@ -212,7 +212,7 @@ const Home = () => {
         {/* Logo Banner — REMOVED (Static Only) */}
         {/* <div className="rounded-xl overflow-hidden shadow-sm mb-4">
           <img
-            src="/logo.jpeg"
+            src="/logo-101dream.svg"
             alt="Logo Banner"
             className="w-full h-auto object-cover"
             onError={(e) => {
@@ -226,7 +226,7 @@ const Home = () => {
           <div className="fixed bottom-20 left-3 right-3 max-w-md mx-auto z-40 bg-white rounded-xl p-3 shadow-lg flex items-center justify-between" style={{ animation: 'floatUpDown 2s ease-in-out infinite' }}>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <img src={appLogoUrl || '/logo.jpeg'} alt="101Dream" className="w-10 h-10 rounded-full" />
+                <img src={appLogoUrl || '/logo-101dream.svg'} alt="101Dream" className="w-10 h-10 rounded-full" />
                 <span className="absolute top-0 right-0 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white" />

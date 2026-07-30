@@ -7,7 +7,7 @@ const ContactUs = () => {
       <Helmet>
         <title>Contact Us - 101Dream | Customer Support</title>
         <meta name="description" content="Contact 101Dream for any queries, payment issues, or game support. Reach us via Instagram, Telegram, or in-app support. We're here to help 24/7." />
-        <meta name="keywords" content="101Dream contact, 101dream, Rushkro Ludo, Rush Kro Ludo, RushLudo, rushludo, Rush Ludo, RushKro, rushkro, Ludo Rush, LudoRush, customer support, help, payment issue, game support, 101dream helpline, 101dream complaint, 101dream customer care" />
+        <meta name="keywords" content="101Dream contact, 101dream, customer support, help, payment issue, game support, 101dream helpline, 101dream complaint, 101dream customer care" />
         <link rel="canonical" href="https://101dream.com/contact" />
       </Helmet>
 
@@ -15,7 +15,7 @@ const ContactUs = () => {
         <header className="border-b border-white/5">
           <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/20">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
                 <svg className="w-7 h-7" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="2" y="8" width="24" height="24" rx="5" fill="white" opacity="0.95"/>
                   <circle cx="9" cy="15" r="2.5" fill="#ef4444"/><circle cx="19" cy="15" r="2.5" fill="#ef4444"/>
@@ -24,7 +24,7 @@ const ContactUs = () => {
                   <path d="M30 4l8 5-14 9 6-14z" fill="white" opacity="0.85"/>
                 </svg>
               </div>
-              <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
+              <span className="text-xl font-extrabold tracking-tight">101<span className="text-amber-400">Dream</span></span>
             </Link>
             <nav className="flex items-center gap-4">
               <Link to="/login" className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all">Play Now</Link>
@@ -118,7 +118,7 @@ const ContactUs = () => {
         <footer className="border-t border-white/5">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
+              <span className="font-extrabold">101<span className="text-amber-400">Dream</span></span>
               <div className="flex items-center gap-6 text-sm text-white/40">
                 <Link to="/about" className="hover:text-white/70">About</Link>
                 <Link to="/privacy" className="hover:text-white/70">Privacy Policy</Link>

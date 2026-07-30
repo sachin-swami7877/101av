@@ -287,7 +287,7 @@ const Profile = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#E3F2FD] pb-[200px] overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#EDE9FE] pb-[200px] overflow-x-hidden relative">
       <Header />
 
       <div className="max-w-md mx-auto p-4 w-full min-w-0">
@@ -302,7 +302,7 @@ const Profile = () => {
             {/* Online indicator — WhatsApp style */}
             <span className="absolute top-0 right-0 flex h-4 w-4">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#E3F2FD]" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#EDE9FE]" />
             </span>
           </div>
           <div className="flex-1 min-w-0">

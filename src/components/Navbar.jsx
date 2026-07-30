@@ -7,7 +7,7 @@ const navItems = [
     label: 'Money',
     matchPaths: ['/wallet'],
     icon: (active) => (
-      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+      <svg className={`w-6 h-6 ${active ? 'text-indigo-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
       </svg>
     ),
@@ -17,7 +17,7 @@ const navItems = [
     label: 'Aviator',
     matchPaths: ['/aviator'],
     icon: (active) => (
-      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+      <svg className={`w-6 h-6 ${active ? 'text-indigo-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
       </svg>
     ),
@@ -28,7 +28,7 @@ const navItems = [
     label: 'Refer',
     matchPaths: ['/referral'],
     icon: (active) => (
-      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+      <svg className={`w-6 h-6 ${active ? 'text-indigo-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
     ),
@@ -38,7 +38,7 @@ const navItems = [
     label: 'Profile',
     matchPaths: ['/profile'],
     icon: (active) => (
-      <svg className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-500'}`} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+      <svg className={`w-6 h-6 ${active ? 'text-indigo-600' : 'text-gray-500'}`} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
       </svg>
     ),
@@ -82,7 +82,7 @@ const Navbar = () => {
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] mt-0.5 font-medium ${active ? 'text-blue-600' : 'text-gray-400'}`}>
+              <span className={`text-[10px] mt-0.5 font-medium ${active ? 'text-indigo-600' : 'text-gray-400'}`}>
                 {item.label}
               </span>
             </Link>
@@ -96,14 +96,14 @@ const Navbar = () => {
         >
           <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all ${
             isHomePage
-              ? 'bg-blue-600 shadow-blue-300/50'
-              : 'bg-gradient-to-br from-sky-400 to-blue-500 shadow-blue-200/50'
+              ? 'bg-indigo-600 shadow-indigo-300/50'
+              : 'bg-gradient-to-br from-violet-500 to-indigo-500 shadow-indigo-200/50'
           }`}>
             <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
           </div>
-          <span className={`text-[10px] mt-0.5 font-medium ${isHomePage ? 'text-blue-600' : 'text-gray-400'}`}>
+          <span className={`text-[10px] mt-0.5 font-medium ${isHomePage ? 'text-indigo-600' : 'text-gray-400'}`}>
             Home
           </span>
         </Link>
@@ -125,7 +125,7 @@ const Navbar = () => {
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] mt-0.5 font-medium ${active ? 'text-blue-600' : 'text-gray-400'}`}>
+              <span className={`text-[10px] mt-0.5 font-medium ${active ? 'text-indigo-600' : 'text-gray-400'}`}>
                 {item.label}
               </span>
             </Link>

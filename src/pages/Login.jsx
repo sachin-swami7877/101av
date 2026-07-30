@@ -277,16 +277,16 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-[48%] relative overflow-hidden flex-col justify-between p-10 xl:p-14">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0e0e1a] to-[#07070d]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_30%_20%,rgba(16,185,129,0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_30%_20%,rgba(124,58,237,0.12),transparent)]" />
         <Particles />
 
         {/* Top — logo */}
         <div className="relative z-10">
           <Link to="/landing" className="inline-flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
               🎲
             </div>
-            <span className="text-2xl font-extrabold tracking-tight">Rushkro<span className="text-emerald-400">Ludo</span></span>
+            <span className="text-2xl font-extrabold tracking-tight">101<span className="text-violet-400">Dream</span></span>
           </Link>
         </div>
 
@@ -295,7 +295,7 @@ const Login = () => {
           <GameIcons />
           <h2 className="text-4xl xl:text-5xl font-black leading-[1.1] mb-5">
             Play. Win.
-            <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mt-1">
+            <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-300 bg-clip-text text-transparent mt-1">
               Earn Real Cash.
             </span>
           </h2>
@@ -334,7 +334,7 @@ const Login = () => {
         {/* Bottom — testimonial */}
         <div className="relative z-10 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-500/30 flex items-center justify-center text-sm font-bold">R</div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 flex items-center justify-center text-sm font-bold">R</div>
             <div>
               <p className="text-sm font-semibold">Rahul K.</p>
               <div className="flex gap-0.5 text-amber-400 text-xs">{'★★★★★'}</div>
@@ -350,11 +350,11 @@ const Login = () => {
       <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
         {/* Mobile header */}
         <div className="lg:hidden relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(16,185,129,0.15),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(124,58,237,0.15),transparent)]" />
           <Particles />
           <div className="relative z-10 flex flex-col items-center pt-8 pb-6 px-4">
             <Link to="/landing" className="mb-4">
-              <img src="/logo.jpeg" alt="101Dream" className="w-16 h-16" />
+              <img src="/logo-101dream.svg" alt="101Dream" className="w-16 h-16" />
             </Link>
             <p className="text-white/40 text-sm">Aviator & Spinner — Win Real Cash!</p>
           </div>
@@ -376,8 +376,8 @@ const Login = () => {
               {[1, 2, 3].map((s) => (
                 <div key={s} className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                    s < stepNum ? 'bg-emerald-500 text-white' :
-                    s === stepNum ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' :
+                    s < stepNum ? 'bg-violet-500 text-white' :
+                    s === stepNum ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30' :
                     'bg-white/10 text-white/30'
                   }`}>
                     {s < stepNum ? (
@@ -385,7 +385,7 @@ const Login = () => {
                     ) : s}
                   </div>
                   {s < 3 && (
-                    <div className={`w-8 sm:w-12 h-0.5 rounded-full transition-colors duration-300 ${s < stepNum ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                    <div className={`w-8 sm:w-12 h-0.5 rounded-full transition-colors duration-300 ${s < stepNum ? 'bg-violet-500' : 'bg-white/10'}`} />
                   )}
                 </div>
               ))}
@@ -427,14 +427,14 @@ const Login = () => {
                       autoFocus
                       maxLength={10}
                       inputMode="numeric"
-                      className="w-full pl-[5.5rem] pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base"
+                      className="w-full pl-[5.5rem] pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base"
                     />
                   </div>
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden relative"
+                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden relative"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? (
@@ -466,7 +466,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading || otp.length < 4}
-                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center justify-center gap-2">
                     {loading ? (
@@ -512,7 +512,7 @@ const Login = () => {
                         setOtp('');
                       } catch (err) { setError('Failed to resend'); }
                     }}
-                    className={`text-sm font-medium transition-colors ${otpTimer > 0 ? 'text-white/20 cursor-not-allowed' : 'text-emerald-400/70 hover:text-emerald-400'}`}
+                    className={`text-sm font-medium transition-colors ${otpTimer > 0 ? 'text-white/20 cursor-not-allowed' : 'text-violet-400/70 hover:text-violet-400'}`}
                   >
                     Resend OTP
                   </button>
@@ -538,7 +538,7 @@ const Login = () => {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Your name"
                         autoFocus
-                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base"
                       />
                     </div>
                   </div>
@@ -550,7 +550,7 @@ const Login = () => {
                     value={referralCode}
                     onChange={(e) => setReferralCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7))}
                     placeholder="Friend's referral code"
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base tracking-widest"
+                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base tracking-widest"
                   />
                 </div>
                 {pendingData?.needsPhone !== false && (
@@ -567,7 +567,7 @@ const Login = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="10-digit mobile number"
-                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base"
                         maxLength={15}
                       />
                     </div>
@@ -576,7 +576,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center justify-center gap-2">
                     {loading ? (
@@ -612,7 +612,7 @@ const Login = () => {
                       onChange={(e) => setName(e.target.value)}
                       placeholder="How should we call you?"
                       autoFocus
-                      className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base"
+                      className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base"
                     />
                   </div>
                 </div>
@@ -623,13 +623,13 @@ const Login = () => {
                     value={referralCode}
                     onChange={(e) => setReferralCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7))}
                     placeholder="Friend's referral code"
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all text-base tracking-widest"
+                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-base tracking-widest"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center justify-center gap-2">
                     {loading ? (
@@ -688,7 +688,7 @@ const Login = () => {
           </div>
           <div className="flex flex-col items-center py-2 px-3 min-w-[56px]">
             <svg className="w-6 h-6 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
-            <span className="text-[10px] mt-0.5 text-white/30">Ludo</span>
+            <span className="text-[10px] mt-0.5 text-white/30">Aviator</span>
           </div>
           <Link to="/landing" className="relative -mt-6 flex flex-col items-center">
             <div className="w-14 h-14 rounded-full bg-gray-900 flex items-center justify-center shadow-lg">

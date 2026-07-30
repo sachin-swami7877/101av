@@ -96,7 +96,7 @@ const History = () => {
       case 'won': return 'bg-green-100 text-green-800';
       case 'lost': return 'bg-red-100 text-red-800';
       case 'completed': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-[#E3F2FD] text-gray-600';
+      case 'cancelled': return 'bg-[#EDE9FE] text-gray-600';
       default: return 'bg-yellow-100 text-yellow-800';
     }
   };

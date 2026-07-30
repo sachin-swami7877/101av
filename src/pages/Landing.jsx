@@ -193,7 +193,7 @@ const Landing = () => {
     return (
       <div className="min-h-screen bg-[#07070d] text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white/60">Loading...</p>
         </div>
       </div>
@@ -225,7 +225,7 @@ const Landing = () => {
       </Helmet>
       {/* ═══ Background layers ═══ */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(220,38,38,0.15),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(124,58,237,0.18),transparent)]" />
         <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#07070d] via-transparent to-transparent" />
         <Particles />
       </div>
@@ -235,13 +235,13 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
           <Link to="/landing" className="flex items-center gap-2 group">
             <div className="relative">
-              <img src="/logo.jpeg" alt="101Dream" className="w-10 h-10 rounded-full" />
+              <img src="/logo-101dream.svg" alt="101Dream" className="w-10 h-10 rounded-full" />
               <span className="absolute top-0 right-0 flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-[#060b14]" />
               </span>
             </div>
-            <span className="text-xl font-extrabold tracking-tight">101<span className="text-red-500">Dream</span></span>
+            <span className="text-xl font-extrabold tracking-tight">101<span className="text-amber-400">Dream</span></span>
           </Link>
 
           {/* Desktop nav */}
@@ -255,7 +255,7 @@ const Landing = () => {
             ) : (
               <Link to="/login" className="text-sm text-white/70 hover:text-white transition-colors font-medium">Login</Link>
             )}
-            <button onClick={handlePlay} className="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 transition-all shadow-lg shadow-red-600/20 hover:shadow-red-500/30">
+            <button onClick={handlePlay} className="px-5 py-2.5 rounded-lg text-sm font-bold bg-violet-600 hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30">
               Play Now
             </button>
           </nav>
@@ -263,7 +263,7 @@ const Landing = () => {
           {/* Mobile: Login button or Play button */}
           <div className="sm:hidden">
             {isAuthenticated ? (
-              <Link to="/dashboard" className="px-5 py-2 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-500 text-white">
+              <Link to="/dashboard" className="px-5 py-2 rounded-lg text-sm font-bold bg-violet-600 hover:bg-violet-500 text-white">
                 Play
               </Link>
             ) : (
@@ -360,7 +360,7 @@ const Landing = () => {
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] mb-6">
               Play Aviator
-              <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-amber-300 bg-clip-text text-transparent">
                 & Lucky Spinner.
               </span>
               Win Real Cash!
@@ -371,7 +371,7 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <button
                 onClick={handlePlay}
-                className="group relative px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-red-600 to-red-500 text-white shadow-2xl shadow-red-600/30 hover:shadow-red-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+                className="group relative px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-2xl shadow-violet-600/30 hover:shadow-violet-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   Play Now
@@ -397,7 +397,7 @@ const Landing = () => {
 
           {/* Right — live multiplier demo */}
           <div className="flex-shrink-0 relative">
-            <div className="absolute inset-0 -m-10 bg-gradient-to-br from-red-600/20 via-orange-500/10 to-transparent rounded-full blur-3xl" />
+            <div className="absolute inset-0 -m-10 bg-gradient-to-br from-violet-600/20 via-indigo-500/10 to-transparent rounded-full blur-3xl" />
             <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl bg-gradient-to-br from-[#12121f] to-[#0a0a14] border border-white/10 shadow-2xl flex flex-col items-center justify-center overflow-hidden">
               <div className="absolute inset-0 opacity-5">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -417,7 +417,7 @@ const Landing = () => {
                 </defs>
               </svg>
               <div className="absolute top-8 right-8 animate-bounce-slow">
-                <PlaneSvg className="w-10 h-10 text-red-500/60 -rotate-45" />
+                <PlaneSvg className="w-10 h-10 text-violet-400/60 -rotate-45" />
               </div>
               <LiveMultiplier />
               <p className="text-white/30 text-xs mt-3 font-medium tracking-wider uppercase">Live Demo</p>
@@ -447,13 +447,13 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black mb-3">Why Players Love <span className="text-red-500">101Dream</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">Why Players Love <span className="text-violet-400">101Dream</span></h2>
             <p className="text-white/50 max-w-2xl mx-auto">Three exciting games, real winnings, and the best gaming experience.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((f, i) => (
               <div key={i} className="group p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 hover:bg-white/[0.06] transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
                   {f.icon}
                 </div>
                 <h3 className="font-bold text-lg mb-2">{f.title}</h3>
@@ -465,7 +465,7 @@ const Landing = () => {
       </section>
 
       {/* ═══ How to Play ═══ */}
-      <section id="how-to-play" className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 bg-gradient-to-b from-transparent via-red-950/5 to-transparent">
+      <section id="how-to-play" className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 bg-gradient-to-b from-transparent via-violet-950/5 to-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-black mb-3">How to Play</h2>
@@ -473,10 +473,10 @@ const Landing = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {steps.map((s, i) => (
-              <div key={i} className="relative p-6 rounded-2xl bg-white/[0.03] border border-white/5 overflow-hidden group hover:border-red-500/20 transition-all">
-                <span className="absolute -top-3 -right-2 text-7xl font-black text-white/[0.03] group-hover:text-red-500/5 transition-colors select-none">{s.num}</span>
+              <div key={i} className="relative p-6 rounded-2xl bg-white/[0.03] border border-white/5 overflow-hidden group hover:border-violet-500/20 transition-all">
+                <span className="absolute -top-3 -right-2 text-7xl font-black text-white/[0.03] group-hover:text-violet-500/5 transition-colors select-none">{s.num}</span>
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-sm font-black mb-4 shadow-lg shadow-red-500/20">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-sm font-black mb-4 shadow-lg shadow-violet-500/20">
                     {s.num}
                   </div>
                   <h3 className="font-bold text-lg mb-2">{s.title}</h3>
@@ -492,7 +492,7 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black mb-3">Our <span className="text-red-500">Games</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-black mb-3">Our <span className="text-violet-400">Games</span></h2>
             <p className="text-white/50">Something for every player</p>
           </div>
           <div className="space-y-6">
@@ -565,14 +565,14 @@ const Landing = () => {
       <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-black mb-4">
-            Ready to <span className="bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">Play & Win?</span>
+            Ready to <span className="bg-gradient-to-r from-violet-400 to-amber-300 bg-clip-text text-transparent">Play & Win?</span>
           </h2>
           <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">
             Join thousands of players winning every day. Create your account, add funds, and choose Aviator or Spinner!
           </p>
           <button
             onClick={handlePlay}
-            className="group relative px-10 py-5 rounded-2xl font-black text-xl bg-gradient-to-r from-red-600 to-red-500 text-white shadow-2xl shadow-red-600/30 hover:shadow-red-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+            className="group relative px-10 py-5 rounded-2xl font-black text-xl bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-2xl shadow-violet-600/30 hover:shadow-violet-500/50 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
           >
             <span className="relative z-10 flex items-center justify-center gap-3">
               Start Playing
@@ -588,10 +588,10 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
                 <LogoSvg className="w-6 h-6" />
               </div>
-              <span className="font-extrabold">101<span className="text-red-500">Dream</span></span>
+              <span className="font-extrabold">101<span className="text-amber-400">Dream</span></span>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-sm text-white/40">
               <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">

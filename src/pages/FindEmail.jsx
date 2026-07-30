@@ -88,7 +88,7 @@ const FindEmail = () => {
       <header className="relative z-10 px-4 sm:px-6 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <Link to="/" className="inline-flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/20">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
               <PlaneSvg className="w-4 h-4 text-white -rotate-12" />
             </div>
             <span className="text-xl font-extrabold tracking-tight">Lean<span className="text-red-500">Aviator</span></span>
