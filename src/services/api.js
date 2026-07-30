@@ -109,7 +109,7 @@ export const adminAuthAPI = {
 
 // Wallet API
 export const walletAPI = {
-  getPaymentInfo: () => api.get('/wallet/payment-info'),
+  getPaymentInfo: () => api.get('/wallet/payment-info', { params: { type: SITE_TYPE } }),
   getBalance: () => api.get('/wallet/balance'),
   deposit: (formData) => api.post('/wallet/deposit', formData),
   withdraw: (amount) => api.post('/wallet/withdraw', { amount }),
