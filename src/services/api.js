@@ -84,21 +84,26 @@ export const authAPI = {
 export const adminAuthAPI = {
   sendOTP: (phone) => api.post('/auth/admin/send-otp', {
     phone: String(phone || '').trim(),
+    type: SITE_TYPE,
   }),
   verifyOTP: (phone, otp) => api.post('/auth/admin/verify-otp', {
     phone: String(phone || '').trim(),
     otp: String(otp || '').trim(),
+    type: SITE_TYPE,
   }),
   passwordLogin: (phone, password) => api.post('/auth/admin/password-login', {
     phone: String(phone || '').trim(),
     password,
+    type: SITE_TYPE,
   }),
   forgotPasswordSendOTP: (phone) => api.post('/auth/admin/forgot-password/send-otp', {
     phone: String(phone || '').trim(),
+    type: SITE_TYPE,
   }),
   forgotPasswordVerifyOTP: (phone, otp) => api.post('/auth/admin/forgot-password/verify-otp', {
     phone: String(phone || '').trim(),
     otp: String(otp || '').trim(),
+    type: SITE_TYPE,
   }),
   resetPassword: (resetToken, newPassword, confirmPassword) => api.post('/auth/admin/reset-password', {
     resetToken,
@@ -169,7 +174,7 @@ export const adminAPI = {
   getPendingCounts: (params) => api.get('/admin/pending-counts', { params: { ...params, siteType: SITE_TYPE } }),
   getUsers: (params) => api.get('/admin/users', { params: { ...params, siteType: SITE_TYPE } }),
   getActiveUsers: () => api.get('/admin/active-users'),
-  createUser: (data) => api.post('/admin/users', data),
+  createUser: (data) => api.post('/admin/users', { ...data, siteType: SITE_TYPE }),
   updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
   updateUserBalance: (id, amount, operation) =>
     api.put(`/admin/users/${id}/balance`, { amount, operation }),
@@ -198,7 +203,7 @@ export const adminAPI = {
   clearSequentialCrashes: () => api.post('/admin/game/clear-sequential-crashes'),
   getCrashQueue: () => api.get('/admin/game/crash-queue'),
   getWinningBets: (params) => api.get('/admin/wins-bets', { params }),
-  getNotifications: () => api.get('/admin/notifications'),
+  getNotifications: () => api.get('/admin/notifications', { params: { siteType: SITE_TYPE } }),
   getSpinnerRecords: (params) => api.get('/admin/spinner-records', { params }),
   getSettings: () => api.get('/admin/settings', { params: { siteType: SITE_TYPE } }),
   updateSettings: (data) => api.put('/admin/settings', { ...data, siteType: SITE_TYPE }),
