@@ -7,50 +7,54 @@ import Navbar from '../components/Navbar';
 
 const VALID_SPIN_COSTS = [50, 100];
 
+// Wheel segments must cover every outcome the backend can return, otherwise the
+// wheel stops on a different prize than the one that was actually awarded.
+// Backend ₹50 spin  → thank_you, 20, 50, 100, 120
+// Backend ₹100 spin → thank_you, 20, 50, 100, 120, 170, 200
+// iPhone / ₹5000 are display-only jackpots the backend never awards.
+
 // ── Paid ₹50 spin segments (7) ──
 const SEGMENTS_50 = [
-  { id: 0, label: '₹50', type: 'cash', value: 50, color: '#d1fae5', textColor: '#047857' },
+  { id: 0, label: '₹20', type: 'cash', value: 20, color: '#dbeafe', textColor: '#1d4ed8' },
   { id: 1, label: 'Thanks', type: 'thanks', color: '#fef9c3', textColor: '#92400e' },
-  { id: 2, label: '₹70', type: 'cash', value: 70, color: '#dbeafe', textColor: '#1d4ed8' },
+  { id: 2, label: '₹50', type: 'cash', value: 50, color: '#d1fae5', textColor: '#047857' },
   { id: 3, label: '₹100', type: 'cash', value: 100, color: '#ede9fe', textColor: '#7c3aed' },
   { id: 4, label: '₹120', type: 'cash', value: 120, color: '#fce7f3', textColor: '#db2777' },
   { id: 5, label: 'iPhone', type: 'prizeImage', imageUrl: '/iphone_16.jpeg', color: '#fef3c7', textColor: '#b45309' },
   { id: 6, label: '₹5000', type: 'cash', value: 5000, color: '#fef3c7', textColor: '#b45309' },
 ];
 
-// ── Paid ₹100 spin segments (8) — no ₹70, adds ₹170 & ₹200 ──
+// ── Paid ₹100 spin segments (9) — adds ₹170 & ₹200 ──
 const SEGMENTS_100 = [
-  { id: 0, label: '₹50', type: 'cash', value: 50, color: '#d1fae5', textColor: '#047857' },
+  { id: 0, label: '₹20', type: 'cash', value: 20, color: '#dbeafe', textColor: '#1d4ed8' },
   { id: 1, label: 'Thanks', type: 'thanks', color: '#fef9c3', textColor: '#92400e' },
-  { id: 2, label: '₹100', type: 'cash', value: 100, color: '#ede9fe', textColor: '#7c3aed' },
-  { id: 3, label: '₹120', type: 'cash', value: 120, color: '#fce7f3', textColor: '#db2777' },
-  { id: 4, label: '₹170', type: 'cash', value: 170, color: '#cffafe', textColor: '#0e7490' },
-  { id: 5, label: '₹200', type: 'cash', value: 200, color: '#fef3c7', textColor: '#b45309' },
-  { id: 6, label: 'iPhone', type: 'prizeImage', imageUrl: '/iphone_16.jpeg', color: '#fef3c7', textColor: '#b45309' },
-  { id: 7, label: '₹5000', type: 'cash', value: 5000, color: '#fff7ed', textColor: '#c2410c' },
+  { id: 2, label: '₹50', type: 'cash', value: 50, color: '#d1fae5', textColor: '#047857' },
+  { id: 3, label: '₹100', type: 'cash', value: 100, color: '#ede9fe', textColor: '#7c3aed' },
+  { id: 4, label: '₹120', type: 'cash', value: 120, color: '#fce7f3', textColor: '#db2777' },
+  { id: 5, label: '₹170', type: 'cash', value: 170, color: '#cffafe', textColor: '#0e7490' },
+  { id: 6, label: '₹200', type: 'cash', value: 200, color: '#fef3c7', textColor: '#b45309' },
+  { id: 7, label: 'iPhone', type: 'prizeImage', imageUrl: '/iphone_16.jpeg', color: '#fef3c7', textColor: '#b45309' },
+  { id: 8, label: '₹5000', type: 'cash', value: 5000, color: '#fff7ed', textColor: '#c2410c' },
 ];
 
-
-function outcomeToSegmentIndex50(outcome) {
-  if (outcome === '20') return 0;
-  if (outcome === '50') return 0;
-  if (outcome === '70') return 2;
-  if (outcome === '100') return 3;
-  if (outcome === '120') return 4;
-  if (outcome === 'thank_you') return 1;
-  return 1;
+// Derive the landing index from the segments themselves so a backend outcome can
+// never be mapped onto the wrong prize.
+function makeOutcomeMapper(segments) {
+  const thanksIndex = Math.max(0, segments.findIndex((s) => s.type === 'thanks'));
+  return (outcome) => {
+    if (outcome === 'thank_you') return thanksIndex;
+    const won = Number(outcome);
+    const idx = segments.findIndex((s) => s.type === 'cash' && s.value === won);
+    if (idx === -1) {
+      console.warn(`[Spinner] No wheel segment for outcome "${outcome}"`);
+      return thanksIndex;
+    }
+    return idx;
+  };
 }
 
-function outcomeToSegmentIndex100(outcome) {
-  if (outcome === '20') return 0;
-  if (outcome === '50') return 0;
-  if (outcome === '100') return 2;
-  if (outcome === '120') return 3;
-  if (outcome === '170') return 4;
-  if (outcome === '200') return 5;
-  if (outcome === 'thank_you') return 1;
-  return 1;
-}
+const outcomeToSegmentIndex50 = makeOutcomeMapper(SEGMENTS_50);
+const outcomeToSegmentIndex100 = makeOutcomeMapper(SEGMENTS_100);
 
 
 const SPIN_DURATION_MS = 5500;
@@ -65,7 +69,7 @@ function wedgePath(cx, cy, r, startDeg, endDeg) {
   return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 }
 
-// ── Referral spinner segments (mostly small prizes) ──
+// ── Referral spinner segments (backend only awards thank_you or ₹20) ──
 const SEGMENTS_REFERRAL = [
   { id: 0, label: '₹20', type: 'cash', value: 20, color: '#e0f2fe', textColor: '#0369a1' },
   { id: 1, label: 'Thanks', type: 'thanks', color: '#fef9c3', textColor: '#92400e' },
@@ -73,13 +77,7 @@ const SEGMENTS_REFERRAL = [
   { id: 3, label: '₹100', type: 'cash', value: 100, color: '#ede9fe', textColor: '#7c3aed' },
 ];
 
-function outcomeToSegmentIndexReferral(outcome) {
-  if (outcome === '20') return 0;
-  if (outcome === '50') return 2;
-  if (outcome === '100') return 3;
-  if (outcome === 'thank_you') return 1;
-  return 1;
-}
+const outcomeToSegmentIndexReferral = makeOutcomeMapper(SEGMENTS_REFERRAL);
 
 export default function Spinner() {
   const { user, updateBalance } = useAuth();
