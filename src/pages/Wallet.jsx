@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { walletAPI, authAPI } from '../services/api';
 import { compressImage } from '../utils/compressImage';
@@ -37,8 +36,7 @@ const Wallet = () => {
   const [histPage, setHistPage] = useState(1);
   const [histTotalPages, setHistTotalPages] = useState(1);
   const [histTotalCount, setHistTotalCount] = useState(0);
-  const { user, updateBalance, refreshUser, patchUser } = useAuth();
-  const { socket } = useSocket();
+  const { user, updateBalance, refreshUser } = useAuth();
 
   // Cancel request
   const [cancelConfirm, setCancelConfirm] = useState(null); // { id, type, amount }
@@ -100,18 +98,6 @@ const Wallet = () => {
     fetchEarningsInfo();
   }, []);
 
-  // Instant KYC status update via socket
-  useEffect(() => {
-    if (!socket) return;
-    const handler = ({ kycStatus }) => {
-      patchUser({ kycStatus });
-      if (kycStatus === 'approved') toast.success('KYC approved! You can now withdraw.');
-      else if (kycStatus === 'rejected') toast.error('KYC rejected. Check profile for reason.');
-    };
-    socket.on('user:kyc-updated', handler);
-    return () => socket.off('user:kyc-updated', handler);
-  }, [socket, refreshUser]);
-
   const checkFirstDeposit = async () => {
     try {
       if (!localStorage.getItem('tcSeen')) {
@@ -148,14 +134,6 @@ const Wallet = () => {
     withdrawingRef.current = true;
     setLoading(true); // disable button immediately on first click
     try {
-      if (user?.kycStatus === 'pending') {
-        toast('KYC under review. Please wait for admin approval.', { icon: '⏳' });
-        return;
-      }
-      if (user?.kycStatus !== 'approved') {
-        navigate('/profile?kyc=open');
-        return;
-      }
       // Re-fetch user to get latest UPI info before checking
       const freshUser = await refreshUser().catch(() => null);
       const checkUser = freshUser || user;

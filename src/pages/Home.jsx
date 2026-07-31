@@ -1,39 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { settingsAPI } from '../services/api';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
-
-/* ── Auto-sliding Ad Carousel ── */
-const AD_SLIDES = ['/slider1.png', '/slider2.png'];
-const AdCarousel = () => {
-  const [current, setCurrent] = useState(0);
-  const timerRef = useRef(null);
-
-  const startTimer = useCallback(() => {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => setCurrent(p => (p + 1) % AD_SLIDES.length), 3000);
-  }, []);
-
-  useEffect(() => { startTimer(); return () => clearInterval(timerRef.current); }, [startTimer]);
-
-  return (
-    <div className="relative rounded-xl overflow-hidden shadow-sm mb-3">
-      <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${current * 100}%)` }}>
-        {AD_SLIDES.map((src, i) => (
-          <img key={i} src={src} alt={`Slide ${i + 1}`} className="w-full flex-shrink-0 h-36 sm:h-40 object-cover" draggable={false} />
-        ))}
-      </div>
-      {/* Dots */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {AD_SLIDES.map((_, i) => (
-          <button key={i} onClick={() => { setCurrent(i); startTimer(); }}
-            className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-white w-4' : 'bg-white/50'}`} />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -114,9 +83,6 @@ const Home = () => {
             <p className="text-white text-sm font-semibold">{userWarning}</p>
           </div>
         )}
-
-        {/* Ad Carousel */}
-        <AdCarousel />
 
         {/* Install tip toast */}
         {showInstallTip && (

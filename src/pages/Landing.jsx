@@ -275,13 +275,6 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* ═══ Ad Carousel ═══ */}
-      <section className="relative z-10 px-4 sm:px-6 pt-6">
-        <div className="max-w-md mx-auto rounded-xl overflow-hidden shadow-lg">
-          <img src="/slider1.png" alt="Withdrawals Within 2 Minutes" className="w-full h-auto" />
-        </div>
-      </section>
-
       {/* ═══ Game Cards — addaking style ═══ */}
       <section className="relative z-10 px-4 sm:px-6 pt-4">
         <div className="max-w-md mx-auto">

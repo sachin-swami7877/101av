@@ -6,7 +6,7 @@ import { useSocket } from '../context/SocketContext';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pendingSummary, setPendingSummary] = useState({ deposits: 0, withdrawals: 0, kyc: 0 });
+  const [pendingSummary, setPendingSummary] = useState({ deposits: 0, withdrawals: 0 });
   const { socket } = useSocket();
   const navigate = useNavigate();
 
@@ -16,7 +16,6 @@ const Notifications = () => {
       setPendingSummary({
         deposits: res.data.pendingDeposits || 0,
         withdrawals: res.data.pendingWithdrawals || 0,
-        kyc: res.data.pendingKyc || 0,
       });
     }).catch(() => {});
   }, []);
@@ -44,20 +43,9 @@ const Notifications = () => {
       }, ...prev]);
     });
 
-    socket.on('admin:kyc-request', (data) => {
-      setNotifications(prev => [{
-        type: 'kyc',
-        userName: data.userName || 'User',
-        userPhone: data.userPhone,
-        userId: data.userId,
-        createdAt: new Date()
-      }, ...prev]);
-    });
-
     return () => {
       socket.off('admin:wallet-request');
       socket.off('admin:withdrawal-request');
-      socket.off('admin:kyc-request');
     };
   }, [socket]);
 
@@ -89,8 +77,6 @@ const Notifications = () => {
         return { icon: '💰', color: 'bg-green-100', text: 'Deposit Request' };
       case 'withdrawal':
         return { icon: '💸', color: 'bg-red-100', text: 'Withdrawal Request' };
-      case 'kyc':
-        return { icon: '🪪', color: 'bg-blue-100', text: 'KYC Request' };
       default:
         return { icon: '🔔', color: 'bg-gray-100', text: 'Notification' };
     }
@@ -109,7 +95,6 @@ const Notifications = () => {
         {[
           { label: 'Deposits', count: pendingSummary.deposits, color: 'bg-emerald-100 text-emerald-700', path: '/admin/money' },
           { label: 'Withdrawals', count: pendingSummary.withdrawals, color: 'bg-rose-100 text-rose-700', path: '/admin/money' },
-          { label: 'KYC', count: pendingSummary.kyc, color: 'bg-blue-100 text-blue-700', path: '/admin/kyc' },
         ].map(({ label, count, color, path }) => (
           <button
             key={label}
@@ -135,10 +120,7 @@ const Notifications = () => {
             return (
               <div
                 key={notification._id || index}
-                className={`bg-white rounded-xl p-4 shadow-sm ${notification.type === 'kyc' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
-                onClick={() => {
-                  if (notification.type === 'kyc') navigate('/admin/kyc');
-                }}
+                className="bg-white rounded-xl p-4 shadow-sm"
               >
                 <div className="flex gap-4">
                   <div className={`w-12 h-12 ${typeInfo.color} rounded-full flex items-center justify-center text-xl flex-shrink-0`}>
@@ -148,21 +130,13 @@ const Notifications = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-medium text-gray-800">{typeInfo.text}</h3>
-                        {notification.type === 'kyc' ? (
-                          <p className="text-sm text-gray-600">
-                            {notification.userName} {notification.userPhone && `(${notification.userPhone})`} — tap to review
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-600">
-                            {notification.userName} ({notification.userPhone})
-                          </p>
-                        )}
-                      </div>
-                      {notification.type !== 'kyc' && (
-                        <p className={`font-bold ${notification.type === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
-                          ₹{notification.amount}
+                        <p className="text-sm text-gray-600">
+                          {notification.userName} ({notification.userPhone})
                         </p>
-                      )}
+                      </div>
+                      <p className={`font-bold ${notification.type === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
+                        ₹{notification.amount}
+                      </p>
                     </div>
                     <p className="text-xs text-gray-400 mt-2">
                       {new Date(notification.createdAt).toLocaleString()}

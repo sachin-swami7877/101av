@@ -356,7 +356,7 @@ const Login = () => {
             <Link to="/landing" className="mb-4">
               <img src="/logo-101dream.svg" alt="101Dream" className="w-16 h-16" />
             </Link>
-            <p className="text-white/40 text-sm">Aviator & Spinner — Win Real Cash!</p>
+            <p className="text-white/40 text-sm">Aviator & Spinner — Win Real Point!</p>
           </div>
         </div>
 

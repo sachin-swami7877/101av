@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { compressImage } from '../utils/compressImage';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
 import { walletAPI, gameAPI, authAPI, settingsAPI, spinnerAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import Header from '../components/Header';
@@ -14,13 +12,9 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
-const inputCls = 'w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors';
-
 const Profile = () => {
-  const { user, logout, refreshUser, patchUser } = useAuth();
-  const { socket } = useSocket();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [stats, setStats] = useState({ totalBets: 0, totalWins: 0, todayEarnings: 0, spinnerEarnings: 0 });
   const [support, setSupport] = useState({ supportPhone: null, supportWhatsApp: null });
   const whatsAppNumber = support.supportWhatsApp || support.supportPhone;
@@ -31,108 +25,12 @@ const Profile = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [editMsg, setEditMsg] = useState('');
   const [balanceDetails, setBalanceDetails] = useState({ depositBalance: 0, earningsBalance: 0 });
-  const [kycData, setKycData] = useState(null);
-  const [kycModalOpen, setKycModalOpen] = useState(false);
-  const [kycForm, setKycForm] = useState({ name: '', aadhaarNumber: '', address: '' });
-  const [kycFile, setKycFile] = useState(null);
-  const [kycPreview, setKycPreview] = useState(null);
-  const [kycBackFile, setKycBackFile] = useState(null);
-  const [kycBackPreview, setKycBackPreview] = useState(null);
-  const [kycSubmitting, setKycSubmitting] = useState(false);
 
   useEffect(() => {
     fetchStats();
     fetchSupport();
     fetchBalanceDetails();
-    fetchKycStatus();
   }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-    const handler = ({ kycStatus, reason }) => {
-      patchUser({ kycStatus });
-      fetchKycStatus();
-      if (kycStatus === 'approved') toast.success('KYC approved! Withdrawals enabled.');
-      else if (kycStatus === 'rejected') toast.error(`KYC rejected: ${reason}`);
-    };
-    socket.on('user:kyc-updated', handler);
-    return () => socket.off('user:kyc-updated', handler);
-  }, [socket, refreshUser]);
-
-  useEffect(() => {
-    if (searchParams.get('kyc') === 'open') {
-      const status = user?.kycStatus;
-      if (status === 'pending') {
-        toast('KYC already under review. Please wait for admin approval.', { icon: '⏳' });
-      } else if (status === 'approved') {
-        toast.success('Your KYC is already verified.');
-      } else {
-        setKycModalOpen(true);
-      }
-    }
-  }, [searchParams, user?.kycStatus]);
-
-  const fetchKycStatus = async () => {
-    try {
-      const res = await authAPI.getKycStatus();
-      setKycData(res.data?.kyc || null);
-    } catch { /* silent */ }
-  };
-
-  const handleKycSubmit = async (e) => {
-    e.preventDefault();
-    if (!kycForm.name || !kycForm.name.trim()) {
-      toast.error('Name is required'); return;
-    }
-    if (!kycForm.address) {
-      toast.error('Address is required'); return;
-    }
-    if (!kycFile) {
-      toast.error('Aadhaar front photo is required'); return;
-    }
-    if (!kycBackFile) {
-      toast.error('Aadhaar back photo is required'); return;
-    }
-    setKycSubmitting(true);
-    try {
-      const fd = new FormData();
-      fd.append('name', kycForm.name.trim());
-      fd.append('aadhaarNumber', kycForm.aadhaarNumber.replace(/\s/g, ''));
-      fd.append('address', kycForm.address);
-      if (kycFile) {
-        const compressedKyc = await compressImage(kycFile, 1280, 0.6);
-        fd.append('aadhaarFront', compressedKyc);
-      }
-      if (kycBackFile) {
-        const compressedBack = await compressImage(kycBackFile, 1280, 0.6);
-        fd.append('aadhaarBack', compressedBack);
-      }
-      console.log('[KYC] Submitting:', { name: kycForm.name, front: kycFile?.name, back: kycBackFile?.name, fdKeys: [...fd.keys()] });
-      await authAPI.submitKyc(fd);
-      toast.success('KYC submitted! Awaiting admin review.');
-      setKycModalOpen(false);
-      setKycForm({ name: '', aadhaarNumber: '', address: '' });
-      setKycFile(null);
-      setKycPreview(null);
-      setKycBackFile(null);
-      setKycBackPreview(null);
-      await fetchKycStatus();
-      // Update user context so kycStatus reflects
-      window.location.reload();
-    } catch (err) {
-      console.error('[KYC Error]', err.response?.status, err.response?.data, err.message);
-      const msg = err.response?.data?.message;
-      if (msg) {
-        toast.error(msg);
-      } else if (err.message?.includes('Network')) {
-        toast.error('Network error. Check your connection.');
-      } else {
-        toast.error('Failed to submit KYC. Please try again.');
-      }
-    } finally {
-      setKycSubmitting(false);
-    }
-  };
 
   const fetchBalanceDetails = async () => {
     try {
@@ -390,179 +288,6 @@ const Profile = () => {
               </button>
             </div>
             <p className="text-xs text-gray-400 mt-2">Share this code — earn free spins when your friends join</p>
-          </div>
-        )}
-
-        {/* KYC Verification */}
-        <div className="mb-6 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-gray-800">KYC Verification</h3>
-            {user?.kycStatus === 'approved' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">Verified ✓</span>}
-            {user?.kycStatus === 'pending' && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">Under Review</span>}
-            {user?.kycStatus === 'rejected' && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-semibold">Rejected</span>}
-            {(!user?.kycStatus || user?.kycStatus === 'none') && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold">Not Submitted</span>}
-          </div>
-          {user?.kycStatus === 'approved' && <p className="text-xs text-gray-500">Your identity is verified. Withdrawals are enabled.</p>}
-          {user?.kycStatus === 'pending' && <p className="text-xs text-gray-500">Your KYC is under review. You will be notified once approved.</p>}
-          {user?.kycStatus === 'rejected' && (
-            <div>
-              {kycData?.rejectionReason && <p className="text-xs text-red-600 mb-2">Reason: {kycData.rejectionReason}</p>}
-              <button onClick={() => setKycModalOpen(true)} className="w-full py-2 rounded-xl bg-red-500 text-white text-sm font-semibold">Re-submit KYC</button>
-            </div>
-          )}
-          {(!user?.kycStatus || user?.kycStatus === 'none') && (
-            <div>
-              <p className="text-xs text-gray-500 mb-3">Complete KYC to enable withdrawals.</p>
-              <button onClick={() => setKycModalOpen(true)} className="w-full py-2 rounded-xl bg-primary-700 text-white text-sm font-semibold">Complete KYC</button>
-            </div>
-          )}
-        </div>
-
-        {/* KYC Modal — block if already approved */}
-        {kycModalOpen && user?.kycStatus === 'approved' && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/70" onClick={() => setKycModalOpen(false)} />
-            <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full text-center">
-              <p className="text-green-600 text-4xl mb-3">✓</p>
-              <h3 className="font-bold text-gray-800 text-lg mb-1">KYC Already Verified</h3>
-              <p className="text-gray-500 text-sm mb-4">Your identity is verified. No action needed.</p>
-              <button onClick={() => setKycModalOpen(false)} className="px-6 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold">OK</button>
-            </div>
-          </div>
-        )}
-        {kycModalOpen && user?.kycStatus !== 'approved' && (
-          <div className="fixed inset-0 z-[9999] flex items-end justify-center">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setKycModalOpen(false)} />
-            {/* Sheet — scrollable, max 95vh */}
-            <div className="relative w-full max-w-md bg-[#111827] rounded-t-3xl shadow-2xl animate-slide-up flex flex-col" style={{ maxHeight: '95vh' }}>
-              {/* Handle */}
-              <div className="px-5 pt-5">
-                <div className="w-10 h-1 bg-gray-600 rounded-full mx-auto mb-4" />
-              </div>
-              <div className="overflow-y-auto px-5 pb-8 flex-1">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-white font-bold text-lg">KYC Verification</h2>
-                  <p className="text-gray-400 text-xs mt-0.5">Required to enable withdrawals</p>
-                </div>
-                <button onClick={() => setKycModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:text-white">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleKycSubmit} className="space-y-4">
-                {/* Name */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Full Name <span className="text-red-400">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="As per Aadhaar"
-                    value={kycForm.name}
-                    onChange={(e) => setKycForm({ ...kycForm, name: e.target.value })}
-                    className={inputCls}
-                    required
-                  />
-                </div>
-
-                {/* Aadhaar Number */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Aadhaar Number</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="XXXX XXXX XXXX"
-                    maxLength={14}
-                    value={kycForm.aadhaarNumber}
-                    onChange={(e) => setKycForm({ ...kycForm, aadhaarNumber: e.target.value })}
-                    className={inputCls}
-                  />
-                </div>
-
-                {/* Address */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Full Address</label>
-                  <textarea
-                    rows={2}
-                    placeholder="House No., Street, City, State, PIN"
-                    value={kycForm.address}
-                    onChange={(e) => setKycForm({ ...kycForm, address: e.target.value })}
-                    className={`${inputCls} resize-none`}
-                    required
-                  />
-                </div>
-
-                {/* Aadhaar Photo */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
-                    Aadhaar Front Photo <span className="text-red-400">*</span>
-                  </label>
-                  <label className="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-primary-500 transition-colors bg-gray-800/40 min-h-[100px]">
-                    {kycPreview ? (
-                      <div className="w-full">
-                        <img src={kycPreview} alt="Aadhaar preview" className="w-full rounded-xl object-cover max-h-48" />
-                        <p className="text-center text-xs text-green-400 py-2">Tap to change photo</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center py-4 px-3">
-                        <svg className="w-8 h-8 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        <p className="text-gray-400 text-sm">Tap to upload photo</p>
-                        <p className="text-gray-600 text-xs mt-0.5">JPG, PNG up to 5MB</p>
-                      </div>
-                    )}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-                      const f = e.target.files[0];
-                      if (!f) return;
-                      setKycFile(f);
-                      setKycPreview(URL.createObjectURL(f));
-                    }} />
-                  </label>
-                </div>
-
-                {/* Aadhaar Back Photo */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
-                    Aadhaar Back Photo <span className="text-red-400">*</span>
-                  </label>
-                  <label className="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-primary-500 transition-colors bg-gray-800/40 min-h-[100px]">
-                    {kycBackPreview ? (
-                      <div className="w-full">
-                        <img src={kycBackPreview} alt="Aadhaar back preview" className="w-full rounded-xl object-cover max-h-48" />
-                        <p className="text-center text-xs text-green-400 py-2">Tap to change photo</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center py-4 px-3">
-                        <svg className="w-8 h-8 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        <p className="text-gray-400 text-sm">Tap to upload back photo</p>
-                        <p className="text-gray-600 text-xs mt-0.5">JPG, PNG up to 5MB</p>
-                      </div>
-                    )}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-                      const f = e.target.files[0];
-                      if (!f) return;
-                      setKycBackFile(f);
-                      setKycBackPreview(URL.createObjectURL(f));
-                    }} />
-                  </label>
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={kycSubmitting}
-                  className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {kycSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                      Submitting...
-                    </span>
-                  ) : 'Submit KYC'}
-                </button>
-              </form>
-              </div>
-            </div>
           </div>
         )}
 

@@ -16,7 +16,6 @@ import { adminAPI } from '../services/api';
 // localStorage keys for "last viewed" timestamps
 const LS_MONEY   = 'adminViewedMoneyAt';
 const LS_ALERTS  = 'adminViewedAlertsAt';
-const LS_KYC     = 'adminViewedKycAt';
 
 const AdminLayout = () => {
   const { user, logout, isAdmin, isSubAdmin, role } = useAuth();
@@ -26,7 +25,6 @@ const AdminLayout = () => {
   // Unread counts (survive refresh via localStorage timestamps)
   const [unreadMoney, setUnreadMoney]   = useState(0); // deposits + withdrawals unread
   const [unreadAlerts, setUnreadAlerts] = useState(0); // all 4 categories unread
-  const [unreadKyc, setUnreadKyc]       = useState(0);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -41,7 +39,6 @@ const AdminLayout = () => {
     { path: '/admin/notifications', label: 'Notifications', icon: '🔔', badge: unreadAlerts, subAdmin: true },
     { path: '/admin/bonus-records', label: 'Bonus Records', icon: '🎁', subAdmin: false },
     { path: '/admin/profit', label: 'Profit', icon: '💹', subAdmin: false },
-    { path: '/admin/kyc', label: 'KYC', icon: '🪪', badge: unreadKyc, subAdmin: false },
     { path: '/admin/database', label: 'Database', icon: '🗄️', subAdmin: false },
     ...(role === 'superadmin' ? [{ path: '/admin/credit-log', label: 'Credit Log', icon: '📝', subAdmin: false }] : []),
     { path: '/admin/settings', label: 'Settings', icon: '⚙️', subAdmin: false },
@@ -72,16 +69,13 @@ const AdminLayout = () => {
     const params = {};
     const m = localStorage.getItem(LS_MONEY);
     const a = localStorage.getItem(LS_ALERTS);
-    const k = localStorage.getItem(LS_KYC);
     if (m) params.sinceMoney  = m;
     if (a) params.sinceAlerts = a;
-    if (k) params.sinceKyc    = k;
 
     adminAPI.getPendingCounts(Object.keys(params).length ? params : undefined).then(res => {
       const d = res.data;
       setUnreadMoney((d.unreadDeposits || 0) + (d.unreadWithdrawals || 0));
       setUnreadAlerts(d.unreadAlerts || 0);
-      setUnreadKyc(d.unreadKyc   || 0);
     }).catch(() => {});
   }, []);
 
@@ -101,17 +95,10 @@ const AdminLayout = () => {
       toast(`New user registered: ${data?.phone || data?.email || 'Unknown'}`, { icon: '🆕', duration: 5000 });
       playNotificationSound();
     });
-    socket.on('admin:kyc-request', (data) => {
-      toast(`KYC request from ${data?.userName || 'a user'}`, { icon: '🪪', duration: 6000 });
-      setUnreadKyc(prev => prev + 1);
-      setUnreadAlerts(prev => prev + 1);
-      playNotificationSound();
-    });
     return () => {
       socket.off('admin:wallet-request');
       socket.off('admin:withdrawal-request');
       socket.off('admin:new-user');
-      socket.off('admin:kyc-request');
     };
   }, [socket]);
 
@@ -125,10 +112,6 @@ const AdminLayout = () => {
     if (location.pathname.startsWith('/admin/notifications')) {
       localStorage.setItem(LS_ALERTS, now);
       setUnreadAlerts(0);
-    }
-    if (location.pathname.startsWith('/admin/kyc')) {
-      localStorage.setItem(LS_KYC, now);
-      setUnreadKyc(0);
     }
   }, [location.pathname]);
 
